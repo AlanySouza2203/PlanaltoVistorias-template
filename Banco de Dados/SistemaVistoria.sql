@@ -22,7 +22,8 @@ create table funcionario (
     nome varchar(100) not null,
     email varchar(100) not null unique,
     matricula varchar(100) not null unique,
-    senha varchar(100) not null
+    senha varchar(100) not null,
+    cargo enum("Vistoriador","Gerente") not null
 );
 
 -- =========================
