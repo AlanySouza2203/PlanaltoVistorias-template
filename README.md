@@ -40,7 +40,7 @@ O sistema foi dividido em módulos principais, garantindo organização, escalab
 - **Banco de Dados**: MySQL
 - **IDE**: Eclipse
 - **Controle de Versão**: Git & GitHub
-- **Interface Gráfica (Opcional)**: Java Swing (Desktop)
+- **Interface Gráfica**: Java Swing (Desktop)
 
 ---
 
