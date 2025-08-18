@@ -39,7 +39,6 @@ O sistema foi dividido em módulos principais, garantindo organização, escalab
 - **Linguagem**: Java (JDK 17)
 - **Banco de Dados**: MySQL
 - **IDE**: Eclipse
-- **Gerenciamento de Dependências**: Maven ou Gradle
 - **Controle de Versão**: Git & GitHub
 - **Interface Gráfica (Opcional)**: Java Swing (Desktop)
 
