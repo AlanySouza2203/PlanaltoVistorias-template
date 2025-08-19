@@ -1,1 +1,27 @@
+# Compilados
+*.class
+*.war
+*.ear
+*.jar
+
+# Logs
+*.log
+
+# Configurações do Eclipse
+.classpath
+.project
+.settings/
+
+# Configurações do IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Arquivos de build
+/target/
 /bin/
+/out/
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db

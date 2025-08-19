@@ -46,3 +46,4 @@ O sistema foi dividido em módulos principais, garantindo organização, escalab
 
 ## 📂 Estrutura do Projeto
 
+## Desenvolvedores
