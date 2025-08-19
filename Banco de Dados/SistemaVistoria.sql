@@ -78,3 +78,13 @@ create table pagamento (
     idAgendamento int not null,
     constraint fk_pagamento_agendamento foreign key (idAgendamento) references agendamento(idAgendamento)
 );
+
+-- Inserir cliente de teste
+INSERT INTO cliente (nome, cpf, telefone, email, senha) 
+VALUES ('João Silva', '123.456.789-00', '(11) 99999-9999', 'joao@email.com', 'senha123');
+
+-- Inserir funcionários de teste
+INSERT INTO funcionario (nome, email, matricula, senha, cargo)
+VALUES 
+('Carlos Vistoriador', 'carlos@empresa.com', 'VIST123', 'senha123', 'Vistoriador'),
+('Maria Gerente', 'maria@empresa.com', 'GER456', 'senha123', 'Gerente');
