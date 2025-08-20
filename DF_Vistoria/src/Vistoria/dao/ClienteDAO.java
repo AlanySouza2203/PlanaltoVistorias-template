@@ -12,8 +12,12 @@ import Vistoria.model.Cliente;
 
 public class ClienteDAO {
 
-    // Inserir novo cliente
-    public void inserir(Cliente cliente) {
+    /**
+     * Insere um novo cliente no banco de dados.
+     * @param cliente O objeto Cliente a ser inserido.
+     * @return true se a inserção for bem-sucedida, false caso contrário.
+     */
+    public boolean inserir(Cliente cliente) {
         String sql = "INSERT INTO cliente (nome, cpf, telefone, email, senha) VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = Conexao.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -22,20 +26,29 @@ public class ClienteDAO {
             stmt.setString(3, cliente.getTelefone());
             stmt.setString(4, cliente.getEmail());
             stmt.setString(5, cliente.getSenha());
-            stmt.executeUpdate();
-            System.out.println("Cadastro realizado com sucesso!");
+            
+            int rowsAffected = stmt.executeUpdate();
+            
+            // Retorna true se pelo menos uma linha foi afetada (inserida)
+            return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            // Retorna false em caso de erro no banco de dados
+            return false;
         }
     }
 
-    // Listar todos os clientes
+    /**
+     * Retorna uma lista de todos os clientes no banco de dados.
+     * @return Uma lista de objetos Cliente.
+     */
     public List<Cliente> listar() {
         List<Cliente> clientes = new ArrayList<>();
         String sql = "SELECT idCliente, nome, cpf, telefone, email, senha FROM cliente";
         
-        try (Connection conn = Conexao.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
                 Cliente cliente = new Cliente();
@@ -50,12 +63,15 @@ public class ClienteDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
         return clientes;
     }
 
-    // Atualizar cliente existente (identificado pelo CPF)
-    public void modificar(Cliente cliente) {
+    /**
+     * Atualiza os dados de um cliente existente com base no CPF.
+     * @param cliente O objeto Cliente com os dados a serem atualizados.
+     * @return true se a atualização for bem-sucedida, false caso contrário.
+     */
+    public boolean modificar(Cliente cliente) {
         String sql = "UPDATE cliente SET nome = ?, telefone = ?, email = ?, senha = ? WHERE cpf = ?";
         
         try (Connection conn = Conexao.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -67,31 +83,31 @@ public class ClienteDAO {
             
             int rowsAffected = stmt.executeUpdate();
             
-            if (rowsAffected > 0) {
-                System.out.println("Dados do cliente atualizados com sucesso!");
-            } else {
-                System.out.println("Nenhum cliente encontrado com o CPF informado.");
-            }
+            // Retorna true se a atualização foi bem-sucedida
+            return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
-    // Deletar cliente pelo CPF
-    public void excluir(String cpf) {
+    /**
+     * Deleta um cliente do banco de dados com base no CPF.
+     * @param cpf O CPF do cliente a ser excluído.
+     * @return true se a exclusão for bem-sucedida, false caso contrário.
+     */
+    public boolean excluir(String cpf) {
         String sql = "DELETE FROM cliente WHERE cpf = ?";
         
         try (Connection conn = Conexao.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, cpf);
             int rowsAffected = stmt.executeUpdate();
             
-            if (rowsAffected > 0) {
-                System.out.println("Cliente excluído com sucesso!");
-            } else {
-                System.out.println("Nenhum cliente encontrado com o CPF informado.");
-            }
+            // Retorna true se a exclusão foi bem-sucedida
+            return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 }
