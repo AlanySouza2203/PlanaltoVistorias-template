@@ -88,3 +88,7 @@ INSERT INTO funcionario (nome, email, matricula, senha, cargo)
 VALUES 
 ('Carlos Vistoriador', 'carlos@empresa.com', 'VIST123', 'senha123', 'Vistoriador'),
 ('Maria Gerente', 'maria@empresa.com', 'GER456', 'senha123', 'Gerente');
+
+
+select * from cliente;
+select * from veiculo;
