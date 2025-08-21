@@ -97,6 +97,9 @@ public class Main {
                         menuCliente.iniciarMenu();
                         break;
                     case "VISTORIADOR":
+                    	int idFuncionario = Integer.parseInt(partes[1]);
+                    	MenuVistoria menuVistoriador = new MenuVistoria(idFuncionario);
+                    	menuVistoriador.exibirMenu();
                         System.out.println("Menu do Vistoriador em construção...");
                         break;
                     case "GERENTE":

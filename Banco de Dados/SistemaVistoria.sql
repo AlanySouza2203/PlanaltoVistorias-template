@@ -48,6 +48,7 @@ create table veiculo (
 create table agendamento (
     idAgendamento int primary key auto_increment,
     data_agendamento date not null,
+    status_agendamento enum("Aberto","Fechado") not null,
     hora time not null,
     idCliente int not null,
     idVeiculo int not null,
@@ -90,7 +91,13 @@ INSERT INTO funcionario (nome, email, matricula, senha, cargo)
 VALUES 
 ('Carlos Vistoriador', 'carlos@empresa.com', '1234', 'senha123', 'Vistoriador'),
 ('Maria Gerente', 'maria@empresa.com', '123', 'senha123', 'Gerente');
-
-
-select * from cliente;
-select * from veiculo;
+INSERT INTO veiculo (placa,tipo_veiculo,nome_veiculo,modelo,ano_veiculo,chassi,idCliente) VALUES
+('000','Moto','Panigale V4 S','Esportivo','2025','0001196',1);
+INSERT INTO agendamento (data_agendamento,status_agendamento,hora,idCliente,idVeiculo) VALUES
+('2025-08-21','Aberto','12:00',1,1),
+('2025-08-21','Fechado','10:00',1,1),
+('2025-08-21','Aberto','09:00',1,1);
+SELECT * FROM agendamento WHERE status_agendamento = 'Aberto';
+-- select * from cliente;
+-- select * from veiculo;
+-- select * from agendamento;
