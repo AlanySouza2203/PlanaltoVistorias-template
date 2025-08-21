@@ -1,11 +1,15 @@
 package Vistoria.model;
 
 public class Veiculo {
+	// Adicionado o idVeiculo
+	private int idVeiculo;
 	private String placa;
 	private String tipo_veiculo;
+	private String nome_veiculo;
 	private String modelo;
 	private int ano_veiculo;
 	private String chassi;
+	private String observacoes;
 	private int idCliente;
 
 	// Construtor vazio (necessário para DAO e frameworks)
@@ -13,16 +17,45 @@ public class Veiculo {
 	}
 
 	// Construtor completo
-	public Veiculo(String placa, String tipo_veiculo, String modelo, int ano_veiculo, String chassi, int idCliente) {
+	// Adicionado idVeiculo ao construtor completo, conforme boa prática,
+	// embora a inserção no banco seja automática.
+	public Veiculo(int idVeiculo, String placa, String tipo_veiculo, String nome_veiculo, String modelo, int ano_veiculo,
+			String chassi, String observacoes, int idCliente) {
+		this.idVeiculo = idVeiculo;
 		this.placa = placa;
 		this.tipo_veiculo = tipo_veiculo;
+		this.nome_veiculo = nome_veiculo;
 		this.modelo = modelo;
 		this.ano_veiculo = ano_veiculo;
 		this.chassi = chassi;
+		this.observacoes = observacoes;
 		this.idCliente = idCliente;
 	}
+	
+    // Construtor para cadastro (não inclui idVeiculo e observacoes)
+    // Este é o construtor ideal para a classe MenuCliente.
+    public Veiculo(String placa, String tipo_veiculo, String nome_veiculo, String modelo, int ano_veiculo, String chassi, int idCliente) {
+        this.placa = placa;
+        this.tipo_veiculo = tipo_veiculo;
+        this.nome_veiculo = nome_veiculo;
+        this.modelo = modelo;
+        this.ano_veiculo = ano_veiculo;
+        this.chassi = chassi;
+        this.idCliente = idCliente;
+        this.observacoes = null; // Definido como nulo, pois não é fornecido no cadastro inicial.
+    }
 
 	// Getters e Setters
+	
+	// Adicionado getter e setter para idVeiculo
+	public int getIdVeiculo() {
+		return idVeiculo;
+	}
+
+	public void setIdVeiculo(int idVeiculo) {
+		this.idVeiculo = idVeiculo;
+	}
+	
 	public String getPlaca() {
 		return placa;
 	}
@@ -37,6 +70,14 @@ public class Veiculo {
 
 	public void setTipo_veiculo(String tipo_veiculo) {
 		this.tipo_veiculo = tipo_veiculo;
+	}
+
+	public String getNome_veiculo() {
+		return nome_veiculo;
+	}
+
+	public void setNome_veiculo(String nome_veiculo) {
+		this.nome_veiculo = nome_veiculo;
 	}
 
 	public String getModelo() {
@@ -61,6 +102,14 @@ public class Veiculo {
 
 	public void setChassi(String chassi) {
 		this.chassi = chassi;
+	}
+
+	public String getObservacoes() {
+		return observacoes;
+	}
+
+	public void setObservacoes(String observacoes) {
+		this.observacoes = observacoes;
 	}
 
 	public int getIdCliente() {

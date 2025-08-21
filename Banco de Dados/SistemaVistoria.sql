@@ -32,11 +32,13 @@ create table funcionario (
 create table veiculo (
     idVeiculo int primary key auto_increment,
     placa varchar(8) not null unique,
-    tipo_veiculo enum("Carro","Moto","Caminhão") not null,
+    tipo_veiculo varchar(20) not null, -- alterado
+    nome_veiculo varchar(100) not null, -- adicionado
     modelo varchar(100) not null,
     ano_veiculo year not null,
     chassi varchar(17) not null unique,
-    idCliente int not null,
+    observacoes text, -- adicionado
+    idCliente int not null, 
     constraint fk_veiculo_cliente foreign key(idCliente) references cliente(idCliente)
 );
 
@@ -86,8 +88,8 @@ VALUES ('João Silva', '123.456.789-00', '(11) 99999-9999', 'joao@email.com', 's
 -- Inserir funcionários de teste
 INSERT INTO funcionario (nome, email, matricula, senha, cargo)
 VALUES 
-('Carlos Vistoriador', 'carlos@empresa.com', 'VIST123', 'senha123', 'Vistoriador'),
-('Maria Gerente', 'maria@empresa.com', 'GER456', 'senha123', 'Gerente');
+('Carlos Vistoriador', 'carlos@empresa.com', '1234', 'senha123', 'Vistoriador'),
+('Maria Gerente', 'maria@empresa.com', '123', 'senha123', 'Gerente');
 
 
 select * from cliente;

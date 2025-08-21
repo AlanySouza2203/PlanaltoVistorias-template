@@ -3,7 +3,9 @@ package Vistoria;
 import Vistoria.dao.Autenticacao;
 import Vistoria.dao.ClienteDAO;
 import Vistoria.model.Cliente;
-import Vistoria.model.MenuCliente;
+import Vistoria.view.MenuCliente;
+import Vistoria.view.AreaGerente; // ainda vai ser adicionado
+import Vistoria.view.MenuVistoria; // ainda vai ser adicionado
 
 import java.util.Scanner;
 

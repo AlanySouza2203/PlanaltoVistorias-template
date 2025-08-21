@@ -1,8 +1,9 @@
-package Vistoria.model;
+package Vistoria.view;
 
 import Vistoria.dao.VeiculoDAO;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import Vistoria.model.Veiculo;
 
 public class MenuCliente {
 	
@@ -152,7 +153,7 @@ public class MenuCliente {
         } while (opcao != 0);
     }
 
-    // Removi o 'static'
+    // Método corrigido para cadastrar o veículo corretamente
     public void menuCadastrarVeiculo(Scanner scanner) {
         VeiculoDAO veiculoDAO = new VeiculoDAO();
 
@@ -163,7 +164,10 @@ public class MenuCliente {
 
         System.out.print("Tipo do veículo (ex: Carro, Moto): ");
         String tipoVeiculo = scanner.nextLine().trim();
-
+        
+        System.out.print("Nome do Veículo: ");
+        String nomeVeiculo = scanner.nextLine().trim();
+        
         System.out.print("Modelo do veículo: ");
         String modelo = scanner.nextLine().trim();
 
@@ -180,14 +184,16 @@ public class MenuCliente {
 
         System.out.print("Número do Chassi: ");
         String chassi = scanner.nextLine().trim();
-
-        Veiculo novoVeiculo = new Veiculo(placa, tipoVeiculo, modelo, anoVeiculo, chassi, this.idClienteLogado);
+        
+        // Aqui está a linha corrigida. Agora usa a variável 'nomeVeiculo'
+        // e o construtor que aceita 7 parâmetros, passando o idCliente.
+        Veiculo novoVeiculo = new Veiculo(placa, tipoVeiculo, nomeVeiculo, modelo, anoVeiculo, chassi, this.idClienteLogado);
 
         boolean cadastrado = veiculoDAO.cadastrar(novoVeiculo);
         if (cadastrado) {
             System.out.println("Veículo cadastrado com sucesso!");
         } else {
-            System.out.println("Erro ao cadastrar veículo. Verifique se a placa já existe.");
+            System.out.println("Erro ao cadastrar veículo. Verifique se a placa ou o chassi já existe.");
         }
     }
 }
