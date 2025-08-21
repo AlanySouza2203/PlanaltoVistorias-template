@@ -100,7 +100,9 @@ public class Main {
                         System.out.println("Menu do Vistoriador em construção...");
                         break;
                     case "GERENTE":
-                        System.out.println("Menu do Gerente em construção...");
+                    	AreaGerente menuGerente = new AreaGerente();
+                    	menuGerente.exibirMenu();
+                        //System.out.println("Menu do Gerente em construção...");
                         break;
                 }
             }
