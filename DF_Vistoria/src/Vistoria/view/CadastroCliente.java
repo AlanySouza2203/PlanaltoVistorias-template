@@ -2,36 +2,32 @@ package Vistoria.view;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
-public class Login extends JFrame {
+public class CadastroCliente extends JFrame {
 
-    //private final LoginController loginController;
-
-    public Login() {
-        //this.loginController = new LoginController();
-
-        setTitle("SISTEMA DE VISTORIA VEICULOS - Login");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public CadastroCliente() {
+        setTitle("SISTEMA DE VISTORIA VEICULOS - Cadastro");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
         setLayout(new GridLayout(1, 2));
 
-        // --- Painel da Esquerda (mesmo código que você já tinha) ---
+        // --- Painel da Esquerda (Logo e Nome do Sistema) ---
         JPanel leftPanel = new JPanel();
         leftPanel.setBackground(new Color(187, 208, 235));
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(50, 30, 50, 30));
 
+        // Logo
         ImageIcon icon = new ImageIcon(getClass().getResource("/img/logo.png"));
         Image image = icon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
         icon = new ImageIcon(image);
         JLabel iconLabel = new JLabel(icon, SwingConstants.CENTER);
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        // Nome do Sistema
         JLabel titleLabel = new JLabel("SISTEMA DE VISTORIA VEICULOS");
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -49,69 +45,46 @@ public class Login extends JFrame {
         leftPanel.add(versionLabel);
         leftPanel.add(Box.createVerticalGlue());
 
-        // --- Painel da Direita (Formulário de Login) ---
+        // --- Painel da Direita (Formulário de Cadastro) ---
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setBackground(new Color(255, 255, 255));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(60, 50, 60, 50));
 
-        JLabel welcomeLabel = new JLabel("Olá, faça seu login!");
+        JLabel welcomeLabel = new JLabel("Cadastro de Cliente");
         welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JTextField userField = new JTextField();
-        JPasswordField passField = new JPasswordField();
+        // Campos de Cadastro
+        JTextField nomeField = new JTextField();
+        JTextField cpfField = new JTextField();
+        JTextField emailField = new JTextField();
+        JPasswordField senhaField = new JPasswordField();
 
-        JPanel userPanel = criarCampoComLabel("CPF: ", userField);
-        JPanel passPanel = criarCampoComLabel("Senha: ", passField);
-        userPanel.setBackground(new Color(255, 255, 255));
-        passPanel.setBackground(new Color(255, 255, 255));
-        
-        JButton loginButton = new JButton("Login");
-        estilizarBotao(loginButton);
-        loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JPanel nomePanel = criarCampoComLabel("Nome:", nomeField);
+        JPanel cpfPanel = criarCampoComLabel("CPF:", cpfField);
+        JPanel emailPanel = criarCampoComLabel("Email:", emailField);
+        JPanel senhaPanel = criarCampoComLabel("Senha:", senhaField);
 
-        // --- Alteração: Trocar o botão por um JLabel sublinhado ---
-        JLabel cadastroLabel = new JLabel("<html><u>Cadastre-se</u></html>");
-        cadastroLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        cadastroLabel.setForeground(new Color(33, 150, 243)); // Cor de link
-        cadastroLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        cadastroLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
-        
-        // --- Ação para o JLabel de cadastro ---
-        cadastroLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                new CadastroCliente().setVisible(true);
-            }
-        });
-        /*
-        // --- Ação do Botão de Login (mantida a mesma lógica) ---
-        loginButton.addActionListener(e -> {
-            String matricula = userField.getText();
-            String senha = new String(passField.getPassword());
-            Funcionario funcionarioLogado = loginController.realizarLogin(matricula, senha);
+        // Botão Cadastrar
+        JButton cadastrarButton = new JButton("Cadastrar");
+        estilizarBotao(cadastrarButton);
+        cadastrarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            if (funcionarioLogado != null) {
-                JOptionPane.showMessageDialog(Login.this, "Login realizado com sucesso! Bem-vindo, " + funcionarioLogado.getNome() + ".");
-                // Lógica para abrir a próxima tela (Dashboard)
-            } else {
-                JOptionPane.showMessageDialog(Login.this, "Usuário ou senha incorretos!", "Erro", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        */
-        
+        // --- Adicionando ao painel direito ---
         rightPanel.add(welcomeLabel);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        rightPanel.add(userPanel);
+        rightPanel.add(nomePanel);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
-        rightPanel.add(passPanel);
+        rightPanel.add(cpfPanel);
+        rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        rightPanel.add(emailPanel);
+        rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        rightPanel.add(senhaPanel);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        rightPanel.add(loginButton);
-        rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        rightPanel.add(cadastroLabel);
+        rightPanel.add(cadastrarButton);
 
+        // --- Adicionando os painéis na janela ---
         add(leftPanel);
         add(rightPanel);
 
@@ -151,6 +124,7 @@ public class Login extends JFrame {
                     BorderFactory.createEmptyBorder(5, 10, 5, 10)
                 ));
             }
+
             @Override
             public void focusLost(FocusEvent e) {
                 estilizarCampo(campo);
@@ -167,6 +141,6 @@ public class Login extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(Login::new);
+        SwingUtilities.invokeLater(CadastroCliente::new);
     }
 }
