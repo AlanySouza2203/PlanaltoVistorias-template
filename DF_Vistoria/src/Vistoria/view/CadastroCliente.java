@@ -1,5 +1,8 @@
 package Vistoria.view;
 
+import Vistoria.dao.ClienteDAO;
+import Vistoria.model.Cliente;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
@@ -20,14 +23,12 @@ public class CadastroCliente extends JFrame {
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(50, 30, 50, 30));
 
-        // Logo
         ImageIcon icon = new ImageIcon(getClass().getResource("/img/logo.png"));
         Image image = icon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
         icon = new ImageIcon(image);
         JLabel iconLabel = new JLabel(icon, SwingConstants.CENTER);
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Nome do Sistema
         JLabel titleLabel = new JLabel("SISTEMA DE VISTORIA VEICULOS");
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -45,7 +46,7 @@ public class CadastroCliente extends JFrame {
         leftPanel.add(versionLabel);
         leftPanel.add(Box.createVerticalGlue());
 
-        // --- Painel da Direita (Formulário de Cadastro) ---
+        // --- Painel da Direita (Formulário) ---
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setBackground(new Color(255, 255, 255));
@@ -55,21 +56,49 @@ public class CadastroCliente extends JFrame {
         welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Campos de Cadastro
         JTextField nomeField = new JTextField();
         JTextField cpfField = new JTextField();
         JTextField emailField = new JTextField();
+        JTextField telefoneField = new JTextField();
         JPasswordField senhaField = new JPasswordField();
 
         JPanel nomePanel = criarCampoComLabel("Nome:", nomeField);
         JPanel cpfPanel = criarCampoComLabel("CPF:", cpfField);
+        JPanel telefonePanel = criarCampoComLabel("Telefone:", telefoneField);
         JPanel emailPanel = criarCampoComLabel("Email:", emailField);
         JPanel senhaPanel = criarCampoComLabel("Senha:", senhaField);
 
-        // Botão Cadastrar
         JButton cadastrarButton = new JButton("Cadastrar");
         estilizarBotao(cadastrarButton);
         cadastrarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // --- AÇÃO DO BOTÃO ---
+        cadastrarButton.addActionListener(e -> {
+            String nome = nomeField.getText().trim();
+            String cpf = cpfField.getText().trim();
+            String telefone = telefoneField.getText().trim();
+            String email = emailField.getText().trim();
+            String senha = new String(senhaField.getPassword()).trim();
+
+            if (nome.isEmpty() || cpf.isEmpty() || telefone.isEmpty() || email.isEmpty() || senha.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Cliente cliente = new Cliente(0, nome, cpf, telefone, email, senha);
+            ClienteDAO dao = new ClienteDAO();
+
+            if (dao.inserir(cliente)) {
+                JOptionPane.showMessageDialog(this, "Cliente cadastrado com sucesso!");
+                nomeField.setText("");
+                cpfField.setText("");
+                telefoneField.setText("");
+                emailField.setText("");
+                senhaField.setText("");
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro ao cadastrar cliente!", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         // --- Adicionando ao painel direito ---
         rightPanel.add(welcomeLabel);
@@ -78,13 +107,14 @@ public class CadastroCliente extends JFrame {
         rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         rightPanel.add(cpfPanel);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        rightPanel.add(telefonePanel);
+        rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         rightPanel.add(emailPanel);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         rightPanel.add(senhaPanel);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         rightPanel.add(cadastrarButton);
 
-        // --- Adicionando os painéis na janela ---
         add(leftPanel);
         add(rightPanel);
 

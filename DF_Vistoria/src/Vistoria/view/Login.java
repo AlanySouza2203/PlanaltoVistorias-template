@@ -1,5 +1,8 @@
 package Vistoria.view;
 
+import Vistoria.dao.ClienteDAO;
+import Vistoria.model.Cliente;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -9,18 +12,14 @@ import java.awt.event.FocusEvent;
 
 public class Login extends JFrame {
 
-    //private final LoginController loginController;
-
     public Login() {
-        //this.loginController = new LoginController();
-
         setTitle("SISTEMA DE VISTORIA VEICULOS - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
         setLayout(new GridLayout(1, 2));
 
-        // --- Painel da Esquerda (mesmo código que você já tinha) ---
+        // --- Painel da Esquerda ---
         JPanel leftPanel = new JPanel();
         leftPanel.setBackground(new Color(187, 208, 235));
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
@@ -49,7 +48,7 @@ public class Login extends JFrame {
         leftPanel.add(versionLabel);
         leftPanel.add(Box.createVerticalGlue());
 
-        // --- Painel da Direita (Formulário de Login) ---
+        // --- Painel da Direita (Formulário) ---
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setBackground(new Color(255, 255, 255));
@@ -59,54 +58,59 @@ public class Login extends JFrame {
         welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JTextField userField = new JTextField();
-        JPasswordField passField = new JPasswordField();
+        JTextField cpfField = new JTextField();
+        JPasswordField senhaField = new JPasswordField();
 
-        JPanel userPanel = criarCampoComLabel("CPF: ", userField);
-        JPanel passPanel = criarCampoComLabel("Senha: ", passField);
-        userPanel.setBackground(new Color(255, 255, 255));
-        passPanel.setBackground(new Color(255, 255, 255));
-        
+        JPanel cpfPanel = criarCampoComLabel("CPF:", cpfField);
+        JPanel senhaPanel = criarCampoComLabel("Senha:", senhaField);
+
         JButton loginButton = new JButton("Login");
         estilizarBotao(loginButton);
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // --- Alteração: Trocar o botão por um JLabel sublinhado ---
         JLabel cadastroLabel = new JLabel("<html><u>Cadastre-se</u></html>");
         cadastroLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        cadastroLabel.setForeground(new Color(33, 150, 243)); // Cor de link
+        cadastroLabel.setForeground(new Color(33, 150, 243));
         cadastroLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         cadastroLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
-        
-        // --- Ação para o JLabel de cadastro ---
+
+        // --- Ação do botão de login ---
+        loginButton.addActionListener(e -> {
+            String cpf = cpfField.getText().trim();
+            String senha = new String(senhaField.getPassword()).trim();
+
+            if (cpf.isEmpty() || senha.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            ClienteDAO dao = new ClienteDAO();
+            Cliente clienteLogado = dao.login(cpf, senha);
+
+            if (clienteLogado != null) {
+                JOptionPane.showMessageDialog(this, "Login realizado com sucesso! Bem-vindo, " + clienteLogado.getNome() + ".");
+                // Aqui você pode abrir a próxima tela, ex: DashboardCliente
+                new DashboardCliente(clienteLogado).setVisible(true);
+                dispose(); // fecha a tela de login
+            } else {
+                JOptionPane.showMessageDialog(this, "CPF ou senha incorretos!", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // --- Ação do JLabel de cadastro ---
         cadastroLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 new CadastroCliente().setVisible(true);
             }
         });
-        /*
-        // --- Ação do Botão de Login (mantida a mesma lógica) ---
-        loginButton.addActionListener(e -> {
-            String matricula = userField.getText();
-            String senha = new String(passField.getPassword());
-            Funcionario funcionarioLogado = loginController.realizarLogin(matricula, senha);
 
-            if (funcionarioLogado != null) {
-                JOptionPane.showMessageDialog(Login.this, "Login realizado com sucesso! Bem-vindo, " + funcionarioLogado.getNome() + ".");
-                // Lógica para abrir a próxima tela (Dashboard)
-            } else {
-                JOptionPane.showMessageDialog(Login.this, "Usuário ou senha incorretos!", "Erro", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        */
-        
+        // --- Adicionando componentes ao painel direito ---
         rightPanel.add(welcomeLabel);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        rightPanel.add(userPanel);
+        rightPanel.add(cpfPanel);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
-        rightPanel.add(passPanel);
+        rightPanel.add(senhaPanel);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         rightPanel.add(loginButton);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -139,18 +143,19 @@ public class Login extends JFrame {
 
     private void estilizarCampo(JComponent campo) {
         campo.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
-            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
 
         campo.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
                 campo.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(33, 150, 243), 2, true),
-                    BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                        BorderFactory.createLineBorder(new Color(33, 150, 243), 2, true),
+                        BorderFactory.createEmptyBorder(5, 10, 5, 10)
                 ));
             }
+
             @Override
             public void focusLost(FocusEvent e) {
                 estilizarCampo(campo);

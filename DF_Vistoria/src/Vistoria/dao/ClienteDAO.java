@@ -110,4 +110,30 @@ public class ClienteDAO {
             return false;
         }
     }
+    
+    public Cliente login(String cpf, String senha) {
+        String sql = "SELECT * FROM cliente WHERE cpf = ? AND senha = ?";
+
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, cpf);
+            stmt.setString(2, senha);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Cliente cliente = new Cliente();
+                cliente.setIdCliente(rs.getInt("idCliente"));
+                cliente.setNome(rs.getString("nome"));
+                cliente.setCpf(rs.getString("cpf"));
+                cliente.setTelefone(rs.getString("telefone"));
+                cliente.setEmail(rs.getString("email"));
+                cliente.setSenha(rs.getString("senha"));
+                return cliente;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // não encontrou
+    }
 }

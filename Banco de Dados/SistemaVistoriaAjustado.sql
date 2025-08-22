@@ -100,3 +100,5 @@ SET
     email = 'teste123@teste.com' -- Assumindo que o e-mail real seria esse
 WHERE
     idCliente = 1;
+    
+    select * from cliente;
