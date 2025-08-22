@@ -98,6 +98,6 @@ INSERT INTO agendamento (data_agendamento,status_agendamento,hora,idCliente,idVe
 ('2025-08-21','Fechado','10:00',1,1),
 ('2025-08-21','Aberto','09:00',1,1);
 SELECT * FROM agendamento WHERE status_agendamento = 'Aberto';
--- select * from cliente;
+select * from cliente;
 -- select * from veiculo;
 -- select * from agendamento;
