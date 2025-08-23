@@ -100,4 +100,4 @@ INSERT INTO agendamento (data_agendamento,status_agendamento,hora,idCliente,idVe
 SELECT * FROM agendamento WHERE status_agendamento = 'Aberto';
 select * from cliente;
 select * from veiculo;
--- select * from agendamento;
+select * from agendamento;
