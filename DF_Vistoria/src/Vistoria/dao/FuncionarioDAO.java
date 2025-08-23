@@ -41,4 +41,29 @@ public class FuncionarioDAO {
         }
         return listaAgendamentos;
     }
+    
+    public void cadastrarFuncionario(Funcionario funcionario) {
+        String sql = "INSERT INTO funcionario (nome, email, matricula, senha, cargo) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, funcionario.getNome());
+            stmt.setString(2, funcionario.getEmail());
+            stmt.setString(3, funcionario.getMatricula());
+            stmt.setString(4, funcionario.getSenha());
+            stmt.setString(5, funcionario.getCargo());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Funcionário " + funcionario.getNome() + " cadastrado com sucesso!");
+            } else {
+                System.out.println("Nenhum funcionário foi cadastrado.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao cadastrar funcionário: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
 }

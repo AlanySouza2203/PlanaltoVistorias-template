@@ -20,6 +20,14 @@ public class Funcionario {
 		this.senha = senha;
 		this.cargo = cargo;
 	}
+	
+	public Funcionario(String nome, String email, String matricula, String senha, String cargo) {
+		this.nome = nome;
+		this.email = email;
+		this.matricula = matricula;
+		this.senha = senha;
+		this.cargo = cargo;
+	}
 
 	// Getters e Setters
 	public int getIdFuncionario() {

@@ -18,7 +18,8 @@ public class AreaGerente {
 		System.out.println("----- MENU DE GERENCIAMENTO DE FUNCIONARIOS -----");
         System.out.println("1. Listar funcionarios");
 		System.out.println("2. Excluir funcionario");
-        System.out.println("3. Sair");
+		System.out.println("3. Cadastrar Funcionario");
+        System.out.println("4. Sair");
         System.out.print("Digite sua opção: ");
         opcao5 = scanner.nextInt();
         scanner.nextLine();
