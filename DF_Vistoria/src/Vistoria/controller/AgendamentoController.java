@@ -1,0 +1,34 @@
+package Vistoria.controller;
+
+import Vistoria.dao.AgendamentoDAO;
+import Vistoria.model.Agendamento;
+import java.util.List;
+
+public class AgendamentoController {
+
+    private AgendamentoDAO agendamentoDAO;
+
+    public AgendamentoController() {
+        this.agendamentoDAO = new AgendamentoDAO();
+    }
+
+    /**
+     * Agenda uma nova vistoria.
+     *
+     * @param agendamento O objeto Agendamento a ser salvo.
+     */
+    public void agendarVistoria(Agendamento agendamento) {
+        agendamentoDAO.adicionarAgendamento(agendamento);
+    }
+
+    /**
+     * Busca todos os agendamentos no banco de dados.
+     *
+     * @return Uma lista de objetos Agendamento.
+     */
+    public List<Agendamento> listarAgendamentos() {
+        return agendamentoDAO.listarAgendamentos();
+    }
+
+    // Você pode adicionar mais métodos como buscarAgendamentoPorId, atualizarAgendamento, etc.
+}

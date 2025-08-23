@@ -82,22 +82,14 @@ create table pagamento (
     constraint fk_pagamento_agendamento foreign key (idAgendamento) references agendamento(idAgendamento)
 );
 
--- Inserir cliente de teste
-INSERT INTO cliente (nome, cpf, telefone, email, senha) 
-VALUES ('João Silva', '123.456.789-00', '(11) 99999-9999', 'joao@email.com', 'senha123');
+-- ==============================
+-- Não Apague as modificações
+-- ==============================
+ALTER TABLE agendamento
+MODIFY COLUMN status_agendamento VARCHAR(20) NOT NULL;
 
--- Inserir funcionários de teste
-INSERT INTO funcionario (nome, email, matricula, senha, cargo)
-VALUES 
-('Carlos Vistoriador', 'carlos@empresa.com', '1234', 'senha123', 'Vistoriador'),
-('Maria Gerente', 'maria@empresa.com', '123', 'senha123', 'Gerente');
-INSERT INTO veiculo (placa,tipo_veiculo,nome_veiculo,modelo,ano_veiculo,chassi,idCliente) VALUES
-('000','Moto','Panigale V4 S','Esportivo','2025','0001196',1);
-INSERT INTO agendamento (data_agendamento,status_agendamento,hora,idCliente,idVeiculo) VALUES
-('2025-08-21','Aberto','12:00',1,1),
-('2025-08-21','Fechado','10:00',1,1),
-('2025-08-21','Aberto','09:00',1,1);
-SELECT * FROM agendamento WHERE status_agendamento = 'Aberto';
+-- ==============================
+-- VErificando os armazenamentos
+-- ==============================
 select * from cliente;
-select * from veiculo;
 select * from agendamento;

@@ -17,8 +17,6 @@ public class Veiculo {
 	}
 
 	// Construtor completo
-	// Adicionado idVeiculo ao construtor completo, conforme boa prática,
-	// embora a inserção no banco seja automática.
 	public Veiculo(int idVeiculo, String placa, String tipo_veiculo, String nome_veiculo, String modelo, int ano_veiculo,
 			String chassi, String observacoes, int idCliente) {
 		this.idVeiculo = idVeiculo;
@@ -32,8 +30,20 @@ public class Veiculo {
 		this.idCliente = idCliente;
 	}
 	
-    // Construtor para cadastro (não inclui idVeiculo e observacoes)
-    // Este é o construtor ideal para a classe MenuCliente.
+    // Construtor para cadastro (sem idVeiculo, mas com observacoes)
+    // ESTE É O CONSTRUTOR QUE FALTAVA
+    public Veiculo(String placa, String tipo_veiculo, String nome_veiculo, String modelo, int ano_veiculo, String chassi, String observacoes, int idCliente) {
+        this.placa = placa;
+        this.tipo_veiculo = tipo_veiculo;
+        this.nome_veiculo = nome_veiculo;
+        this.modelo = modelo;
+        this.ano_veiculo = ano_veiculo;
+        this.chassi = chassi;
+        this.observacoes = observacoes;
+        this.idCliente = idCliente;
+    }
+
+	// Seu construtor original, agora duplicado (pode ser removido se não for usado)
     public Veiculo(String placa, String tipo_veiculo, String nome_veiculo, String modelo, int ano_veiculo, String chassi, int idCliente) {
         this.placa = placa;
         this.tipo_veiculo = tipo_veiculo;
@@ -42,12 +52,10 @@ public class Veiculo {
         this.ano_veiculo = ano_veiculo;
         this.chassi = chassi;
         this.idCliente = idCliente;
-        this.observacoes = null; // Definido como nulo, pois não é fornecido no cadastro inicial.
+        this.observacoes = null;
     }
 
 	// Getters e Setters
-	
-	// Adicionado getter e setter para idVeiculo
 	public int getIdVeiculo() {
 		return idVeiculo;
 	}

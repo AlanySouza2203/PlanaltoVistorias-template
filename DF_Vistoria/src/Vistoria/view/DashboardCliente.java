@@ -1,15 +1,34 @@
 package Vistoria.view;
 
 import Vistoria.model.Cliente;
+import Vistoria.model.Agendamento;
+import Vistoria.model.Veiculo;
+import Vistoria.controller.AgendamentoController;
+import Vistoria.controller.VeiculoController;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DashboardCliente extends JFrame {
 
     private final Cliente clienteLogado;
     private JPanel cardPanel;
     private CardLayout cardLayout;
+
+    // Controladores
+    private final AgendamentoController agendamentoController;
+    private final VeiculoController veiculoController;
+
+    // Componentes de formulário
+    private JComboBox<String> veiculoAgendarComboBox;
+    
+    // Mapeamento de Placa para Veículo para uso no JComboBox
+    private Map<String, Veiculo> veiculoMap = new HashMap<>();
 
     // Paleta de cores
     private static final Color SIDEBAR_COLOR = new Color(33, 150, 243); // Azul lateral
@@ -26,6 +45,8 @@ public class DashboardCliente extends JFrame {
 
     public DashboardCliente(Cliente cliente) {
         this.clienteLogado = cliente;
+        this.agendamentoController = new AgendamentoController();
+        this.veiculoController = new VeiculoController();
 
         setTitle("Dashboard do Cliente");
         setSize(1100, 750);
@@ -47,7 +68,7 @@ public class DashboardCliente extends JFrame {
         sidebarPanel.add(titleLabel);
         sidebarPanel.add(Box.createRigidArea(new Dimension(0, 50)));
 
-        // Botões da barra lateral com ícones redimensionados (24x24)
+        // Botões da barra lateral
         JButton btnDashboard = criarBotaoLateral("Dashboard", carregarIcone("/icones/dashboard.png", 24, 24));
         JButton btnAgendar = criarBotaoLateral("Agendar Vistoria", carregarIcone("/icones/calendario.png", 24, 24));
         JButton btnCadastrar = criarBotaoLateral("Cadastrar Veículo", carregarIcone("/icones/carro.png", 24, 24));
@@ -76,8 +97,14 @@ public class DashboardCliente extends JFrame {
         cardPanel.add(criarPainelEmitirLaudo(), "EmitirLaudo");
 
         // Ações dos botões
-        btnDashboard.addActionListener(e -> cardLayout.show(cardPanel, "Dashboard"));
-        btnAgendar.addActionListener(e -> cardLayout.show(cardPanel, "AgendarVistoria"));
+        btnDashboard.addActionListener(e -> {
+            atualizarCardsDashboard();
+            cardLayout.show(cardPanel, "Dashboard");
+        });
+        btnAgendar.addActionListener(e -> {
+            carregarVeiculosComboBox();
+            cardLayout.show(cardPanel, "AgendarVistoria");
+        });
         btnCadastrar.addActionListener(e -> cardLayout.show(cardPanel, "CadastrarVeiculo"));
         btnLaudos.addActionListener(e -> cardLayout.show(cardPanel, "EmitirLaudo"));
         btnLogout.addActionListener(e -> {
@@ -89,6 +116,40 @@ public class DashboardCliente extends JFrame {
         add(cardPanel, BorderLayout.CENTER);
 
         setVisible(true);
+        atualizarCardsDashboard(); // Carrega os dados iniciais
+    }
+    
+    // --- Métodos de Lógica de Negócio ---
+
+    /**
+     * Carrega os veículos do banco de dados e popula o JComboBox.
+     */
+    private void carregarVeiculosComboBox() {
+        // Limpa o JComboBox e o mapa antes de carregar novos dados
+        veiculoAgendarComboBox.removeAllItems();
+        veiculoMap.clear();
+
+        List<Veiculo> veiculos = veiculoController.listarVeiculos();
+        if (veiculos.isEmpty()) {
+            veiculoAgendarComboBox.addItem("Nenhum veículo cadastrado");
+            veiculoAgendarComboBox.setEnabled(false);
+        } else {
+            veiculoAgendarComboBox.setEnabled(true);
+            for (Veiculo v : veiculos) {
+                String item = v.getPlaca() + " - " + v.getNome_veiculo();
+                veiculoAgendarComboBox.addItem(item);
+                veiculoMap.put(item, v); // Mapeia a string exibida para o objeto Veiculo
+            }
+        }
+    }
+    
+    /**
+     * Atualiza os cards do dashboard com dados do banco de dados (atualmente mock).
+     */
+    private void atualizarCardsDashboard() {
+        // TODO: Implementar a lógica para buscar a contagem real de vistorias, laudos e veículos do BD
+        // Exemplo: int numAgendamentos = agendamentoController.contarAgendamentosDoCliente(clienteLogado.getIdCliente());
+        // cardAgendamentos.setText(String.valueOf(numAgendamentos));
     }
 
     // --- Método para carregar e redimensionar ícones ---
@@ -166,27 +227,12 @@ public class DashboardCliente extends JFrame {
 
     // --- Botões da sidebar ---
     private JButton criarBotaoLateral(String texto, ImageIcon icon) {
-        JButton button = new JButton(texto, icon) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                if (getModel().isRollover()) {
-                    g2.setColor(new Color(21, 101, 192));
-                } else {
-                    g2.setColor(Color.WHITE);
-                }
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                super.paintComponent(g);
-                g2.dispose();
-            }
-        };
-
+        JButton button = new JButton(texto, icon);
         button.setOpaque(false);
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
-        button.setForeground(Color.DARK_GRAY);
+        button.setForeground(Color.WHITE);
         button.setFont(new Font("Segoe UI", Font.BOLD, 15));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setMaximumSize(new Dimension(220, 45));
@@ -194,10 +240,22 @@ public class DashboardCliente extends JFrame {
         button.setIconTextGap(12);
         button.setBorder(new EmptyBorder(12, 20, 12, 20));
 
+        // Efeito de hover
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(21, 101, 192));
+                button.setOpaque(true);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(SIDEBAR_COLOR);
+                button.setOpaque(false);
+            }
+        });
+
         return button;
     }
 
-    // --- Formulário Agendar Vistoria ---
+    // --- Painel Agendar Vistoria ---
     private JPanel criarPainelAgendarVistoria() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(BACKGROUND_COLOR);
@@ -208,12 +266,18 @@ public class DashboardCliente extends JFrame {
         JLabel title = new JLabel("Agendar Nova Vistoria");
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(Color.DARK_GRAY);
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.WEST;
         panel.add(title, gbc);
 
         JTextField dataField = new JTextField(20);
         JTextField horaField = new JTextField(20);
         JComboBox<String> tipoVistoria = new JComboBox<>(new String[]{"Transferência", "Cautelar", "Estrutural"});
+        
+        veiculoAgendarComboBox = new JComboBox<>(); // JComboBox agora é um atributo da classe
+        
         JButton agendarButton = new JButton("Agendar Vistoria");
 
         gbc.gridy = 1; gbc.gridx = 0; gbc.gridwidth = 1; panel.add(new JLabel("Data:"), gbc);
@@ -222,13 +286,45 @@ public class DashboardCliente extends JFrame {
         gbc.gridy = 2; gbc.gridx = 0; panel.add(new JLabel("Hora:"), gbc);
         gbc.gridx = 1; panel.add(horaField, gbc);
 
-        gbc.gridy = 3; gbc.gridx = 0; gbc.gridwidth = 2; panel.add(new JLabel("Tipo de Vistoria:"), gbc);
-        gbc.gridy = 4; panel.add(tipoVistoria, gbc);
+        gbc.gridy = 3; gbc.gridx = 0; panel.add(new JLabel("Tipo de Vistoria:"), gbc);
+        gbc.gridx = 1; panel.add(tipoVistoria, gbc);
+        
+        gbc.gridy = 4; gbc.gridx = 0; panel.add(new JLabel("Veículo:"), gbc);
+        gbc.gridx = 1; panel.add(veiculoAgendarComboBox, gbc);
 
-        gbc.gridy = 5; panel.add(agendarButton, gbc);
+        gbc.gridy = 5; gbc.gridx = 0; gbc.gridwidth = 2; panel.add(agendarButton, gbc);
 
+        // Lógica para agendar a vistoria
         agendarButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Vistoria agendada para " + dataField.getText());
+            String data = dataField.getText();
+            String hora = horaField.getText();
+            String tipo = (String) tipoVistoria.getSelectedItem();
+            String veiculoSelecionadoStr = (String) veiculoAgendarComboBox.getSelectedItem();
+
+            if (data.isEmpty() || hora.isEmpty() || veiculoSelecionadoStr == null || veiculoSelecionadoStr.contains("Nenhum veículo")) {
+                JOptionPane.showMessageDialog(this, "Por favor, preencha todos os campos e selecione um veículo.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Veiculo veiculoSelecionado = veiculoMap.get(veiculoSelecionadoStr);
+            if (veiculoSelecionado == null) {
+                JOptionPane.showMessageDialog(this, "Veículo não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Agendamento novoAgendamento = new Agendamento();
+            novoAgendamento.setData_agendamento(data);
+            novoAgendamento.setHora(hora);
+            novoAgendamento.setStatus_agendamento("Pendente");
+            novoAgendamento.setIdCliente(clienteLogado.getIdCliente());
+            novoAgendamento.setIdVeiculo(veiculoSelecionado.getIdVeiculo());
+
+            agendamentoController.agendarVistoria(novoAgendamento);
+
+            JOptionPane.showMessageDialog(this, "Vistoria agendada com sucesso para " + data + " às " + hora + "!");
+            dataField.setText("");
+            horaField.setText("");
+            atualizarCardsDashboard();
         });
 
         return panel;
@@ -239,39 +335,90 @@ public class DashboardCliente extends JFrame {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(BACKGROUND_COLOR);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 15, 15, 15);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel title = new JLabel("Cadastrar Veículo");
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(Color.DARK_GRAY);
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        panel.add(title, gbc);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.WEST; panel.add(title, gbc);
 
+        // Campos do formulário
         JTextField placaField = new JTextField(20);
-        JTextField marcaField = new JTextField(20);
+        JComboBox<String> tipoVeiculoComboBox = new JComboBox<>(new String[]{"Carro", "Moto", "Caminhão"});
+        JTextField nomeVeiculoField = new JTextField(20);
         JTextField modeloField = new JTextField(20);
+        JTextField anoVeiculoField = new JTextField(20);
+        JTextField chassiField = new JTextField(20);
+        JTextArea observacoesArea = new JTextArea(3, 20);
+        observacoesArea.setLineWrap(true);
+        observacoesArea.setWrapStyleWord(true);
+        JScrollPane observacoesScrollPane = new JScrollPane(observacoesArea);
+
         JButton cadastrarButton = new JButton("Cadastrar Veículo");
 
         gbc.gridy = 1; gbc.gridx = 0; gbc.gridwidth = 1; panel.add(new JLabel("Placa:"), gbc);
         gbc.gridx = 1; panel.add(placaField, gbc);
 
-        gbc.gridy = 2; gbc.gridx = 0; panel.add(new JLabel("Marca:"), gbc);
-        gbc.gridx = 1; panel.add(marcaField, gbc);
-
-        gbc.gridy = 3; gbc.gridx = 0; panel.add(new JLabel("Modelo:"), gbc);
+        gbc.gridy = 2; gbc.gridx = 0; panel.add(new JLabel("Tipo de Veículo:"), gbc);
+        gbc.gridx = 1; panel.add(tipoVeiculoComboBox, gbc);
+        
+        gbc.gridy = 3; gbc.gridx = 0; panel.add(new JLabel("Nome do Veículo:"), gbc);
+        gbc.gridx = 1; panel.add(nomeVeiculoField, gbc);
+        
+        gbc.gridy = 4; gbc.gridx = 0; panel.add(new JLabel("Modelo:"), gbc);
         gbc.gridx = 1; panel.add(modeloField, gbc);
 
-        gbc.gridy = 4; gbc.gridwidth = 2; panel.add(cadastrarButton, gbc);
+        gbc.gridy = 5; gbc.gridx = 0; panel.add(new JLabel("Ano:"), gbc);
+        gbc.gridx = 1; panel.add(anoVeiculoField, gbc);
+
+        gbc.gridy = 6; gbc.gridx = 0; panel.add(new JLabel("Chassi:"), gbc);
+        gbc.gridx = 1; panel.add(chassiField, gbc);
+
+        gbc.gridy = 7; gbc.gridx = 0; panel.add(new JLabel("Observações:"), gbc);
+        gbc.gridx = 1; panel.add(observacoesScrollPane, gbc);
+
+        gbc.gridy = 8; gbc.gridx = 0; gbc.gridwidth = 2; panel.add(cadastrarButton, gbc);
 
         cadastrarButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Veículo " + placaField.getText() + " cadastrado com sucesso!");
+            try {
+                String placa = placaField.getText();
+                String tipo = (String) tipoVeiculoComboBox.getSelectedItem();
+                String nome = nomeVeiculoField.getText();
+                String modelo = modeloField.getText();
+                int ano = Integer.parseInt(anoVeiculoField.getText());
+                String chassi = chassiField.getText();
+                String observacoes = observacoesArea.getText();
+
+                if (placa.isEmpty() || nome.isEmpty() || modelo.isEmpty() || chassi.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Por favor, preencha todos os campos obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                Veiculo novoVeiculo = new Veiculo(placa, tipo, nome, modelo, ano, chassi, observacoes, clienteLogado.getIdCliente());
+
+                boolean sucesso = veiculoController.cadastrarVeiculo(novoVeiculo);
+                if (sucesso) {
+                    JOptionPane.showMessageDialog(this, "Veículo " + placa + " cadastrado com sucesso!");
+                    placaField.setText("");
+                    nomeVeiculoField.setText("");
+                    modeloField.setText("");
+                    anoVeiculoField.setText("");
+                    chassiField.setText("");
+                    observacoesArea.setText("");
+                    atualizarCardsDashboard();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Erro ao cadastrar o veículo. Verifique os dados e tente novamente.", "Erro", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "O campo 'Ano' deve ser um número válido.", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         return panel;
     }
 
-    // --- Emitir Laudo ---
+    // --- Painel Emitir Laudo ---
     private JPanel criarPainelEmitirLaudo() {
         JPanel panel = new JPanel(new BorderLayout(20, 20));
         panel.setBackground(BACKGROUND_COLOR);

@@ -1,111 +1,121 @@
 package Vistoria.dao;
 
 import Vistoria.model.Agendamento;
-import java.sql.*;
+import Vistoria.DB.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AgendamentoDAO {
 
-    private Connection conn;
+    public void adicionarAgendamento(Agendamento agendamento) {
+        String sql = "INSERT INTO agendamento (data_agendamento, status_agendamento, hora, idCliente, idVeiculo) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-    public AgendamentoDAO(Connection conn) {
-        this.conn = conn;
-    }
-
-    // Criar (INSERT)
-    public void inserir(Agendamento agendamento) throws SQLException {
-        String sql = "INSERT INTO agendamento (data_agendamento, status_agendamento, hora, idCliente, idVeiculo) "
-                   + "VALUES (?, ?, ?, ?, ?)";
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, agendamento.getData_agendamento());
             stmt.setString(2, agendamento.getStatus_agendamento());
             stmt.setString(3, agendamento.getHora());
             stmt.setInt(4, agendamento.getIdCliente());
             stmt.setInt(5, agendamento.getIdVeiculo());
             stmt.executeUpdate();
+            System.out.println("Agendamento adicionado com sucesso!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Erro ao adicionar agendamento: " + e.getMessage());
         }
     }
 
-    // Ler todos (SELECT)
-    public List<Agendamento> listarTodos() throws SQLException {
-        List<Agendamento> lista = new ArrayList<>();
+    public List<Agendamento> listarAgendamentos() {
+        List<Agendamento> agendamentos = new ArrayList<>();
         String sql = "SELECT * FROM agendamento";
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                Agendamento ag = new Agendamento();
-                ag.setIdAgendamento(rs.getInt("idAgendamento"));
-                ag.setData_agendamento(rs.getString("data_agendamento"));
-                ag.setStatus_agendamento(rs.getString("status_agendamento"));
-                ag.setHora(rs.getString("hora"));
-                ag.setIdCliente(rs.getInt("idCliente"));
-                ag.setIdVeiculo(rs.getInt("idVeiculo"));
-                lista.add(ag);
+                Agendamento agendamento = new Agendamento();
+                agendamento.setIdAgendamento(rs.getInt("idAgendamento"));
+                agendamento.setData_agendamento(rs.getString("data_agendamento"));
+                agendamento.setStatus_agendamento(rs.getString("status_agendamento"));
+                agendamento.setHora(rs.getString("hora"));
+                agendamento.setIdCliente(rs.getInt("idCliente"));
+                agendamento.setIdVeiculo(rs.getInt("idVeiculo"));
+                agendamentos.add(agendamento);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Erro ao listar agendamentos: " + e.getMessage());
         }
-        return lista;
+        return agendamentos;
     }
 
-    // Buscar por ID
-    public Agendamento buscarPorId(int id) throws SQLException {
+    public Agendamento buscarAgendamentoPorId(int id) {
+        Agendamento agendamento = null;
         String sql = "SELECT * FROM agendamento WHERE idAgendamento = ?";
-        Agendamento ag = null;
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
-
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    ag = new Agendamento();
-                    ag.setIdAgendamento(rs.getInt("idAgendamento"));
-                    ag.setData_agendamento(rs.getString("data_agendamento"));
-                    ag.setStatus_agendamento(rs.getString("status_agendamento"));
-                    ag.setHora(rs.getString("hora"));
-                    ag.setIdCliente(rs.getInt("idCliente"));
-                    ag.setIdVeiculo(rs.getInt("idVeiculo"));
+                    agendamento = new Agendamento();
+                    agendamento.setIdAgendamento(rs.getInt("idAgendamento"));
+                    agendamento.setData_agendamento(rs.getString("data_agendamento"));
+                    agendamento.setStatus_agendamento(rs.getString("status_agendamento"));
+                    agendamento.setHora(rs.getString("hora"));
+                    agendamento.setIdCliente(rs.getInt("idCliente"));
+                    agendamento.setIdVeiculo(rs.getInt("idVeiculo"));
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Erro ao buscar agendamento por ID: " + e.getMessage());
         }
-        return ag;
+        return agendamento;
     }
 
-    // Atualizar
-    public void atualizar(Agendamento agendamento) throws SQLException {
-        String sql = "UPDATE agendamento SET data_agendamento=?, status_agendamento=?, hora=?, idCliente=?, idVeiculo=? "
-                   + "WHERE idAgendamento=?";
+    public void atualizarAgendamento(Agendamento agendamento) {
+        String sql = "UPDATE agendamento SET data_agendamento = ?, status_agendamento = ?, hora = ?, idCliente = ?, idVeiculo = ? WHERE idAgendamento = ?";
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, agendamento.getData_agendamento());
             stmt.setString(2, agendamento.getStatus_agendamento());
             stmt.setString(3, agendamento.getHora());
             stmt.setInt(4, agendamento.getIdCliente());
             stmt.setInt(5, agendamento.getIdVeiculo());
             stmt.setInt(6, agendamento.getIdAgendamento());
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
+            if (linhasAfetadas > 0) {
+                System.out.println("Agendamento atualizado com sucesso!");
+            } else {
+                System.out.println("Nenhum agendamento encontrado com o ID " + agendamento.getIdAgendamento());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Erro ao atualizar agendamento: " + e.getMessage());
         }
     }
 
-    // Deletar
-    public void deletar(int id) throws SQLException {
-        String sql = "DELETE FROM agendamento WHERE idAgendamento=?";
+    public void deletarAgendamento(int id) {
+        String sql = "DELETE FROM agendamento WHERE idAgendamento = ?";
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
-            stmt.executeUpdate();
-        }
-    }
-
-    // Extra: Confirmar agendamento (muda status para "Realizado")
-    public void confirmar(int id) throws SQLException {
-        String sql = "UPDATE agendamento SET status_agendamento='Realizado' WHERE idAgendamento=?";
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
+            if (linhasAfetadas > 0) {
+                System.out.println("Agendamento deletado com sucesso!");
+            } else {
+                System.out.println("Nenhum agendamento encontrado com o ID " + id);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Erro ao deletar agendamento: " + e.getMessage());
         }
     }
 }
