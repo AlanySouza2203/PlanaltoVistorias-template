@@ -118,4 +118,42 @@ public class AgendamentoDAO {
             System.err.println("Erro ao deletar agendamento: " + e.getMessage());
         }
     }
+    
+    /**
+     * Conta a quantidade de agendamentos de um cliente.
+     */
+    public int contarAgendamentosPorCliente(int idCliente) {
+        String sql = "SELECT COUNT(*) FROM agendamento WHERE idCliente = ?";
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idCliente);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao contar agendamentos: " + e.getMessage());
+        }
+        return 0;
+    }
+    
+    /**
+     * Conta a quantidade de laudos (agendamentos com status 'Concluído').
+     */
+    public int contarLaudosConcluidosPorCliente(int idCliente) {
+        String sql = "SELECT COUNT(*) FROM agendamento WHERE idCliente = ? AND status_agendamento = 'Concluído'";
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idCliente);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao contar laudos: " + e.getMessage());
+        }
+        return 0;
+    }
 }

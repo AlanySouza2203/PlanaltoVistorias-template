@@ -31,4 +31,11 @@ public class AgendamentoController {
     }
 
     // Você pode adicionar mais métodos como buscarAgendamentoPorId, atualizarAgendamento, etc.
+    public int contarAgendamentosPorCliente(int idCliente) {
+        return agendamentoDAO.contarAgendamentosPorCliente(idCliente);
+    }
+    
+    public int contarLaudosConcluidosPorCliente(int idCliente) {
+        return agendamentoDAO.contarLaudosConcluidosPorCliente(idCliente);
+    }
 }

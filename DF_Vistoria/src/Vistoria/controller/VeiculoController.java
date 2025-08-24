@@ -1,7 +1,9 @@
 package Vistoria.controller;
 
+
 import Vistoria.dao.VeiculoDAO;
 import Vistoria.model.Veiculo;
+
 import java.util.List;
 
 public class VeiculoController {
@@ -32,4 +34,17 @@ public class VeiculoController {
     }
     
     // Você pode adicionar métodos para atualizar, deletar e buscar veículos.
+    /**
+     * Busca todos os veículos pertencentes a um cliente específico.
+     *
+     * @param idCliente O ID do cliente logado.
+     * @return Uma lista de objetos Veiculo.
+     */
+    public List<Veiculo> listarVeiculosPorCliente(int idCliente) {
+        return veiculoDAO.listarVeiculosPorCliente(idCliente);
+    }
+    
+    public int contarVeiculosPorCliente(int idCliente) {
+        return veiculoDAO.contarVeiculosPorCliente(idCliente);
+    }
 }

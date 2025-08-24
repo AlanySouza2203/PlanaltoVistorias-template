@@ -1,17 +1,16 @@
 package Vistoria.view;
 
-import Vistoria.model.Cliente;
-import Vistoria.model.Agendamento;
-import Vistoria.model.Veiculo;
 import Vistoria.controller.AgendamentoController;
 import Vistoria.controller.VeiculoController;
+import Vistoria.model.Agendamento;
+import Vistoria.model.Cliente;
+import Vistoria.model.Veiculo;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DashboardCliente extends JFrame {
@@ -24,11 +23,16 @@ public class DashboardCliente extends JFrame {
     private final AgendamentoController agendamentoController;
     private final VeiculoController veiculoController;
 
-    // Componentes de formulário
+    // Componentes de formulário e dashboard
     private JComboBox<String> veiculoAgendarComboBox;
     
     // Mapeamento de Placa para Veículo para uso no JComboBox
-    private Map<String, Veiculo> veiculoMap = new HashMap<>();
+    private final Map<String, Veiculo> veiculoMap = new HashMap<>();
+
+    // NOVOS ATRIBUTOS para os labels dos cards, para que possam ser atualizados
+    private JLabel agendamentosValueLabel;
+    private JLabel laudosValueLabel;
+    private JLabel veiculosValueLabel;
 
     // Paleta de cores
     private static final Color SIDEBAR_COLOR = new Color(33, 150, 243); // Azul lateral
@@ -125,11 +129,10 @@ public class DashboardCliente extends JFrame {
      * Carrega os veículos do banco de dados e popula o JComboBox.
      */
     private void carregarVeiculosComboBox() {
-        // Limpa o JComboBox e o mapa antes de carregar novos dados
         veiculoAgendarComboBox.removeAllItems();
         veiculoMap.clear();
 
-        List<Veiculo> veiculos = veiculoController.listarVeiculos();
+        List<Veiculo> veiculos = veiculoController.listarVeiculosPorCliente(clienteLogado.getIdCliente());
         if (veiculos.isEmpty()) {
             veiculoAgendarComboBox.addItem("Nenhum veículo cadastrado");
             veiculoAgendarComboBox.setEnabled(false);
@@ -144,12 +147,17 @@ public class DashboardCliente extends JFrame {
     }
     
     /**
-     * Atualiza os cards do dashboard com dados do banco de dados (atualmente mock).
+     * Atualiza os cards do dashboard com dados do banco de dados.
      */
     private void atualizarCardsDashboard() {
-        // TODO: Implementar a lógica para buscar a contagem real de vistorias, laudos e veículos do BD
-        // Exemplo: int numAgendamentos = agendamentoController.contarAgendamentosDoCliente(clienteLogado.getIdCliente());
-        // cardAgendamentos.setText(String.valueOf(numAgendamentos));
+        int numVeiculos = veiculoController.contarVeiculosPorCliente(clienteLogado.getIdCliente());
+        int numAgendamentos = agendamentoController.contarAgendamentosPorCliente(clienteLogado.getIdCliente());
+        int numLaudos = agendamentoController.contarLaudosConcluidosPorCliente(clienteLogado.getIdCliente());
+        
+        // Atualiza os labels com os valores reais
+        agendamentosValueLabel.setText(String.valueOf(numAgendamentos));
+        laudosValueLabel.setText(String.valueOf(numLaudos));
+        veiculosValueLabel.setText(String.valueOf(numVeiculos));
     }
 
     // --- Método para carregar e redimensionar ícones ---
@@ -175,16 +183,26 @@ public class DashboardCliente extends JFrame {
         JPanel cardsPanel = new JPanel(new GridLayout(1, 3, 30, 0));
         cardsPanel.setBackground(BACKGROUND_COLOR);
 
-        cardsPanel.add(criarCardInfo("Vistorias Agendadas", "0", CARD_TITLE_ORANGE, "/icones/task.png"));
-        cardsPanel.add(criarCardInfo("Laudos Concluídos", "0", CARD_TITLE_GREEN, "/icones/check.png"));
-        cardsPanel.add(criarCardInfo("Veículos Cadastrados", "0", CARD_TITLE_RED, "/icones/carro.png"));
+        // Cria e armazena os labels em atributos da classe
+        JPanel cardAgendamentos = criarCardInfo("Vistorias Agendadas", "/icones/task.png");
+        agendamentosValueLabel = (JLabel) ((BorderLayout) cardAgendamentos.getLayout()).getLayoutComponent(BorderLayout.CENTER);
+        
+        JPanel cardLaudos = criarCardInfo("Laudos Concluídos", "/icones/check.png");
+        laudosValueLabel = (JLabel) ((BorderLayout) cardLaudos.getLayout()).getLayoutComponent(BorderLayout.CENTER);
+        
+        JPanel cardVeiculos = criarCardInfo("Veículos Cadastrados", "/icones/carro.png");
+        veiculosValueLabel = (JLabel) ((BorderLayout) cardVeiculos.getLayout()).getLayoutComponent(BorderLayout.CENTER);
 
+        cardsPanel.add(cardAgendamentos);
+        cardsPanel.add(cardLaudos);
+        cardsPanel.add(cardVeiculos);
+        
         panel.add(cardsPanel);
         return panel;
     }
 
     // --- Cards com ícones (32x32) ---
-    private JPanel criarCardInfo(String titulo, String valor, Color titleColor, String iconPath) {
+    private JPanel criarCardInfo(String titulo, String iconPath) {
         JPanel card = new JPanel(new BorderLayout(0, 10)) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -207,9 +225,16 @@ public class DashboardCliente extends JFrame {
 
         JLabel titleLabel = new JLabel(titulo);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        titleLabel.setForeground(titleColor);
+        
+        if (titulo.contains("Agendadas")) {
+            titleLabel.setForeground(CARD_TITLE_ORANGE);
+        } else if (titulo.contains("Concluídos")) {
+            titleLabel.setForeground(CARD_TITLE_GREEN);
+        } else if (titulo.contains("Cadastrados")) {
+            titleLabel.setForeground(CARD_TITLE_RED);
+        }
 
-        JLabel valueLabel = new JLabel(valor);
+        JLabel valueLabel = new JLabel("0"); // Valor inicial
         valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 46));
         valueLabel.setForeground(CARD_VALUE_BLUE);
         valueLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -276,7 +301,7 @@ public class DashboardCliente extends JFrame {
         JTextField horaField = new JTextField(20);
         JComboBox<String> tipoVistoria = new JComboBox<>(new String[]{"Transferência", "Cautelar", "Estrutural"});
         
-        veiculoAgendarComboBox = new JComboBox<>(); // JComboBox agora é um atributo da classe
+        veiculoAgendarComboBox = new JComboBox<>();
         
         JButton agendarButton = new JButton("Agendar Vistoria");
 
@@ -343,7 +368,6 @@ public class DashboardCliente extends JFrame {
         title.setForeground(Color.DARK_GRAY);
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.WEST; panel.add(title, gbc);
 
-        // Campos do formulário
         JTextField placaField = new JTextField(20);
         JComboBox<String> tipoVeiculoComboBox = new JComboBox<>(new String[]{"Carro", "Moto", "Caminhão"});
         JTextField nomeVeiculoField = new JTextField(20);
