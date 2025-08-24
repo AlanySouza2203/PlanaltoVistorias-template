@@ -80,25 +80,14 @@ public class FuncionarioDAO {
             stmt.setString(3, funcionario.getMatricula());
             stmt.setString(4, funcionario.getSenha());
             stmt.setString(5, funcionario.getCargo());
+            stmt.executeUpdate();
 
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Funcionário " + funcionario.getNome() + " cadastrado com sucesso!");
-            } else {
-                System.out.println("Nenhum funcionário foi cadastrado.");
-            }
         } catch (SQLException e) {
             System.err.println("Erro ao cadastrar funcionário: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    /**
-     * Tenta realizar o login de um funcionário.
-     * @param matricula A matrícula do funcionário.
-     * @param senha A senha do funcionário.
-     * @return O objeto Funcionario se o login for bem-sucedido, caso contrário, null.
-     */
     public Funcionario login(String matricula, String senha) {
         String sql = "SELECT * FROM funcionario WHERE matricula = ? AND senha = ?";
         Funcionario funcionario = null;
