@@ -89,7 +89,19 @@ ALTER TABLE agendamento
 MODIFY COLUMN status_agendamento VARCHAR(20) NOT NULL;
 
 -- ==============================
+-- insert de funcionario gerente
+-- ==============================
+-- Insere um funcionário com o cargo de Vistoriador
+INSERT INTO funcionario (nome, email, matricula, senha, cargo)
+VALUES ('Testador Vistoria', 'teste.vistoria@empresa.com', 'VIS-001', 'senha123', 'Vistoriador');
+
+-- Insere um funcionário com o cargo de Gerente
+INSERT INTO funcionario (nome, email, matricula, senha, cargo)
+VALUES ('Testador Gerente', 'teste.gerente@empresa.com', 'GER-001', 'senha456', 'Gerente');
+
+-- ==============================
 -- VErificando os armazenamentos
 -- ==============================
 select * from cliente;
+select * from veiculo;
 select * from agendamento;
