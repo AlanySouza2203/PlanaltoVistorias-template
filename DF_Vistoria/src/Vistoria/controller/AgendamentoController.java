@@ -38,4 +38,19 @@ public class AgendamentoController {
     public int contarLaudosConcluidosPorCliente(int idCliente) {
         return agendamentoDAO.contarLaudosConcluidosPorCliente(idCliente);
     }
+    
+    // Busca de agendamentos de acordo com os Status
+    public int contarAgendamentosAgendado() {
+    	return agendamentoDAO.contarAgendamentosAgendado();
+    }
+    public int contarAgendamentosConcluido() {
+    	return agendamentoDAO.contarAgendamentosConcluido();
+    }
+    public int contarAgendamentosCancelado() {
+    	return agendamentoDAO.contarAgendamentosCancelado();
+    }
+    public int contarAgendamentosReservado() {
+    	return agendamentoDAO.contarAgendamentosReservado();
+    }
+    
 }
