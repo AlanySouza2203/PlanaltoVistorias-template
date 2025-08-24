@@ -7,10 +7,38 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import Vistoria.DB.Conexao; 
+import Vistoria.DB.Conexao;
 import Vistoria.model.Funcionario;
 
 public class FuncionarioDAO {
+
+    /**
+     * Retorna uma lista com todos os funcionários cadastrados no banco de dados.
+     * @return Uma lista de objetos Funcionario.
+     */
+    public List<Funcionario> listarTodos() {
+        List<Funcionario> listaFuncionarios = new ArrayList<>();
+        String sql = "SELECT * FROM funcionario";
+
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Funcionario funcionario = new Funcionario();
+                funcionario.setIdFuncionario(rs.getInt("idFuncionario"));
+                funcionario.setNome(rs.getString("nome"));
+                funcionario.setEmail(rs.getString("email"));
+                funcionario.setMatricula(rs.getString("matricula"));
+                funcionario.setCargo(rs.getString("cargo"));
+                listaFuncionarios.add(funcionario);
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar todos os funcionários: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return listaFuncionarios;
+    }
 
     public List<Agendamento> listarAgendamentosPorStatus(String status) {
         List<Agendamento> listaAgendamentos = new ArrayList<>();
@@ -19,7 +47,6 @@ public class FuncionarioDAO {
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Define o valor do status no placeholder
             stmt.setString(1, status);
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -41,7 +68,7 @@ public class FuncionarioDAO {
         }
         return listaAgendamentos;
     }
-    
+
     public void cadastrarFuncionario(Funcionario funcionario) {
         String sql = "INSERT INTO funcionario (nome, email, matricula, senha, cargo) VALUES (?, ?, ?, ?, ?)";
 
@@ -65,5 +92,37 @@ public class FuncionarioDAO {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+     * Tenta realizar o login de um funcionário.
+     * @param matricula A matrícula do funcionário.
+     * @param senha A senha do funcionário.
+     * @return O objeto Funcionario se o login for bem-sucedido, caso contrário, null.
+     */
+    public Funcionario login(String matricula, String senha) {
+        String sql = "SELECT * FROM funcionario WHERE matricula = ? AND senha = ?";
+        Funcionario funcionario = null;
+
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, matricula);
+            stmt.setString(2, senha);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    funcionario = new Funcionario();
+                    funcionario.setIdFuncionario(rs.getInt("idFuncionario"));
+                    funcionario.setNome(rs.getString("nome"));
+                    funcionario.setEmail(rs.getString("email"));
+                    funcionario.setMatricula(rs.getString("matricula"));
+                    funcionario.setCargo(rs.getString("cargo"));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao tentar login do funcionário: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return funcionario;
+    }
 }

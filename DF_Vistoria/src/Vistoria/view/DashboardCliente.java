@@ -13,28 +13,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A classe DashboardCliente representa a interface principal do cliente no sistema de vistoria.
+ * Ela fornece uma dashboard com informações resumidas e painéis para agendar vistorias,
+ * cadastrar veículos e emitir laudos.
+ */
 public class DashboardCliente extends JFrame {
 
+    // --- Atributos de Lógica de Negócio e Controladores ---
     private final Cliente clienteLogado;
-    private JPanel cardPanel;
-    private CardLayout cardLayout;
-
-    // Controladores
     private final AgendamentoController agendamentoController;
     private final VeiculoController veiculoController;
 
-    // Componentes de formulário e dashboard
+    // --- Atributos de Componentes da Interface (UI) ---
+    private JPanel cardPanel;
+    private CardLayout cardLayout;
+
+    // Campos de formulário
     private JComboBox<String> veiculoAgendarComboBox;
-    
-    // Mapeamento de Placa para Veículo para uso no JComboBox
     private final Map<String, Veiculo> veiculoMap = new HashMap<>();
 
-    // NOVOS ATRIBUTOS para os labels dos cards, para que possam ser atualizados
+    // Labels para os cards do dashboard, que precisam ser atualizados dinamicamente
     private JLabel agendamentosValueLabel;
     private JLabel laudosValueLabel;
     private JLabel veiculosValueLabel;
 
-    // Paleta de cores
+    // --- Paleta de Cores e Constantes de Estilo ---
     private static final Color SIDEBAR_COLOR = new Color(33, 150, 243); // Azul lateral
     private static final Color BACKGROUND_COLOR = new Color(245, 245, 245); // Fundo cinza claro
     private static final Color CARD_BACKGROUND = Color.WHITE;
@@ -43,22 +47,58 @@ public class DashboardCliente extends JFrame {
     private static final Color CARD_TITLE_ORANGE = new Color(255, 152, 0);
     private static final Color CARD_TITLE_GREEN = new Color(0, 150, 136);
     private static final Color CARD_TITLE_RED = new Color(244, 67, 54);
-
+    
     // Cor dos números nos cards
     private static final Color CARD_VALUE_BLUE = new Color(33, 150, 243);
 
+    /**
+     * Construtor da classe DashboardCliente.
+     *
+     * @param cliente O objeto Cliente que está logado no sistema.
+     */
     public DashboardCliente(Cliente cliente) {
         this.clienteLogado = cliente;
         this.agendamentoController = new AgendamentoController();
         this.veiculoController = new VeiculoController();
 
+        // --- Configurações básicas da janela ---
         setTitle("Dashboard do Cliente");
         setSize(1100, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // --- Sidebar ---
+        // --- Inicialização e adição dos painéis principais ---
+        JPanel sidebarPanel = criarPainelSidebar();
+        
+        cardLayout = new CardLayout();
+        cardPanel = new JPanel(cardLayout);
+        cardPanel.setBackground(BACKGROUND_COLOR);
+        cardPanel.setBorder(new EmptyBorder(40, 40, 40, 40));
+
+        cardPanel.add(criarPainelDashboardInicial(), "Dashboard");
+        cardPanel.add(criarPainelAgendarVistoria(), "AgendarVistoria");
+        cardPanel.add(criarPainelCadastrarVeiculo(), "CadastrarVeiculo");
+        cardPanel.add(criarPainelEmitirLaudo(), "EmitirLaudo");
+
+        add(sidebarPanel, BorderLayout.WEST);
+        add(cardPanel, BorderLayout.CENTER);
+
+        // --- Ações dos botões e inicialização de dados ---
+        configurarAcoesBotoes(sidebarPanel);
+        atualizarCardsDashboard();
+        
+        setVisible(true);
+    }
+
+    // --- Métodos de Criação de Painéis e Componentes de UI ---
+
+    /**
+     * Cria e retorna o painel da barra lateral.
+     *
+     * @return O JPanel da barra lateral.
+     */
+    private JPanel criarPainelSidebar() {
         JPanel sidebarPanel = new JPanel();
         sidebarPanel.setBackground(SIDEBAR_COLOR);
         sidebarPanel.setPreferredSize(new Dimension(240, getHeight()));
@@ -72,7 +112,6 @@ public class DashboardCliente extends JFrame {
         sidebarPanel.add(titleLabel);
         sidebarPanel.add(Box.createRigidArea(new Dimension(0, 50)));
 
-        // Botões da barra lateral
         JButton btnDashboard = criarBotaoLateral("Dashboard", carregarIcone("/icones/dashboard.png", 24, 24));
         JButton btnAgendar = criarBotaoLateral("Agendar Vistoria", carregarIcone("/icones/calendario.png", 24, 24));
         JButton btnCadastrar = criarBotaoLateral("Cadastrar Veículo", carregarIcone("/icones/carro.png", 24, 24));
@@ -88,19 +127,23 @@ public class DashboardCliente extends JFrame {
         sidebarPanel.add(btnLaudos);
         sidebarPanel.add(Box.createVerticalGlue());
         sidebarPanel.add(btnLogout);
+        
+        return sidebarPanel;
+    }
 
-        // --- Painel principal ---
-        cardLayout = new CardLayout();
-        cardPanel = new JPanel(cardLayout);
-        cardPanel.setBackground(BACKGROUND_COLOR);
-        cardPanel.setBorder(new EmptyBorder(40, 40, 40, 40));
-
-        cardPanel.add(criarPainelDashboardInicial(), "Dashboard");
-        cardPanel.add(criarPainelAgendarVistoria(), "AgendarVistoria");
-        cardPanel.add(criarPainelCadastrarVeiculo(), "CadastrarVeiculo");
-        cardPanel.add(criarPainelEmitirLaudo(), "EmitirLaudo");
-
-        // Ações dos botões
+    /**
+     * Configura as ações de clique para os botões da barra lateral.
+     *
+     * @param sidebarPanel O painel da barra lateral que contém os botões.
+     */
+    private void configurarAcoesBotoes(JPanel sidebarPanel) {
+        // Encontra os botões do painel lateral para configurar as ações
+        JButton btnDashboard = (JButton) sidebarPanel.getComponent(2);
+        JButton btnAgendar = (JButton) sidebarPanel.getComponent(4);
+        JButton btnCadastrar = (JButton) sidebarPanel.getComponent(6);
+        JButton btnLaudos = (JButton) sidebarPanel.getComponent(8);
+        JButton btnLogout = (JButton) sidebarPanel.getComponent(10);
+        
         btnDashboard.addActionListener(e -> {
             atualizarCardsDashboard();
             cardLayout.show(cardPanel, "Dashboard");
@@ -115,59 +158,13 @@ public class DashboardCliente extends JFrame {
             dispose();
             new Login().setVisible(true);
         });
-
-        add(sidebarPanel, BorderLayout.WEST);
-        add(cardPanel, BorderLayout.CENTER);
-
-        setVisible(true);
-        atualizarCardsDashboard(); // Carrega os dados iniciais
     }
-    
-    // --- Métodos de Lógica de Negócio ---
 
     /**
-     * Carrega os veículos do banco de dados e popula o JComboBox.
+     * Cria e retorna o painel inicial do dashboard, com os cards de informação.
+     *
+     * @return O JPanel do dashboard inicial.
      */
-    private void carregarVeiculosComboBox() {
-        veiculoAgendarComboBox.removeAllItems();
-        veiculoMap.clear();
-
-        List<Veiculo> veiculos = veiculoController.listarVeiculosPorCliente(clienteLogado.getIdCliente());
-        if (veiculos.isEmpty()) {
-            veiculoAgendarComboBox.addItem("Nenhum veículo cadastrado");
-            veiculoAgendarComboBox.setEnabled(false);
-        } else {
-            veiculoAgendarComboBox.setEnabled(true);
-            for (Veiculo v : veiculos) {
-                String item = v.getPlaca() + " - " + v.getNome_veiculo();
-                veiculoAgendarComboBox.addItem(item);
-                veiculoMap.put(item, v); // Mapeia a string exibida para o objeto Veiculo
-            }
-        }
-    }
-    
-    /**
-     * Atualiza os cards do dashboard com dados do banco de dados.
-     */
-    private void atualizarCardsDashboard() {
-        int numVeiculos = veiculoController.contarVeiculosPorCliente(clienteLogado.getIdCliente());
-        int numAgendamentos = agendamentoController.contarAgendamentosPorCliente(clienteLogado.getIdCliente());
-        int numLaudos = agendamentoController.contarLaudosConcluidosPorCliente(clienteLogado.getIdCliente());
-        
-        // Atualiza os labels com os valores reais
-        agendamentosValueLabel.setText(String.valueOf(numAgendamentos));
-        laudosValueLabel.setText(String.valueOf(numLaudos));
-        veiculosValueLabel.setText(String.valueOf(numVeiculos));
-    }
-
-    // --- Método para carregar e redimensionar ícones ---
-    private ImageIcon carregarIcone(String path, int largura, int altura) {
-        ImageIcon icon = new ImageIcon(getClass().getResource(path));
-        Image image = icon.getImage().getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
-        return new ImageIcon(image);
-    }
-
-    // --- Painel inicial com cards ---
     private JPanel criarPainelDashboardInicial() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -183,7 +180,6 @@ public class DashboardCliente extends JFrame {
         JPanel cardsPanel = new JPanel(new GridLayout(1, 3, 30, 0));
         cardsPanel.setBackground(BACKGROUND_COLOR);
 
-        // Cria e armazena os labels em atributos da classe
         JPanel cardAgendamentos = criarCardInfo("Vistorias Agendadas", "/icones/task.png");
         agendamentosValueLabel = (JLabel) ((BorderLayout) cardAgendamentos.getLayout()).getLayoutComponent(BorderLayout.CENTER);
         
@@ -201,7 +197,13 @@ public class DashboardCliente extends JFrame {
         return panel;
     }
 
-    // --- Cards com ícones (32x32) ---
+    /**
+     * Cria um card de informação estilizado com ícone, título e valor.
+     *
+     * @param titulo O texto do título do card.
+     * @param iconPath O caminho do ícone.
+     * @return O JPanel do card de informação.
+     */
     private JPanel criarCardInfo(String titulo, String iconPath) {
         JPanel card = new JPanel(new BorderLayout(0, 10)) {
             @Override
@@ -209,10 +211,8 @@ public class DashboardCliente extends JFrame {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
                 g2.setColor(new Color(0, 0, 0, 25));
                 g2.fillRoundRect(5, 5, getWidth() - 10, getHeight() - 10, 20, 20);
-
                 g2.setColor(CARD_BACKGROUND);
                 g2.fillRoundRect(0, 0, getWidth() - 10, getHeight() - 10, 20, 20);
                 g2.dispose();
@@ -222,7 +222,6 @@ public class DashboardCliente extends JFrame {
         card.setBorder(new EmptyBorder(25, 25, 25, 25));
 
         JLabel iconLabel = new JLabel(carregarIcone(iconPath, 32, 32));
-
         JLabel titleLabel = new JLabel(titulo);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         
@@ -234,7 +233,7 @@ public class DashboardCliente extends JFrame {
             titleLabel.setForeground(CARD_TITLE_RED);
         }
 
-        JLabel valueLabel = new JLabel("0"); // Valor inicial
+        JLabel valueLabel = new JLabel("0");
         valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 46));
         valueLabel.setForeground(CARD_VALUE_BLUE);
         valueLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -250,7 +249,13 @@ public class DashboardCliente extends JFrame {
         return card;
     }
 
-    // --- Botões da sidebar ---
+    /**
+     * Cria e retorna um botão estilizado para a barra lateral.
+     *
+     * @param texto O texto do botão.
+     * @param icon O ícone do botão.
+     * @return O JButton estilizado.
+     */
     private JButton criarBotaoLateral(String texto, ImageIcon icon) {
         JButton button = new JButton(texto, icon);
         button.setOpaque(false);
@@ -280,7 +285,11 @@ public class DashboardCliente extends JFrame {
         return button;
     }
 
-    // --- Painel Agendar Vistoria ---
+    /**
+     * Cria e retorna o painel para agendar uma nova vistoria.
+     *
+     * @return O JPanel do formulário de agendamento.
+     */
     private JPanel criarPainelAgendarVistoria() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(BACKGROUND_COLOR);
@@ -291,32 +300,23 @@ public class DashboardCliente extends JFrame {
         JLabel title = new JLabel("Agendar Nova Vistoria");
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(Color.DARK_GRAY);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.WEST;
         panel.add(title, gbc);
 
         JTextField dataField = new JTextField(20);
         JTextField horaField = new JTextField(20);
         JComboBox<String> tipoVistoria = new JComboBox<>(new String[]{"Transferência", "Cautelar", "Estrutural"});
-        
         veiculoAgendarComboBox = new JComboBox<>();
-        
         JButton agendarButton = new JButton("Agendar Vistoria");
 
         gbc.gridy = 1; gbc.gridx = 0; gbc.gridwidth = 1; panel.add(new JLabel("Data:"), gbc);
         gbc.gridx = 1; panel.add(dataField, gbc);
-
         gbc.gridy = 2; gbc.gridx = 0; panel.add(new JLabel("Hora:"), gbc);
         gbc.gridx = 1; panel.add(horaField, gbc);
-
         gbc.gridy = 3; gbc.gridx = 0; panel.add(new JLabel("Tipo de Vistoria:"), gbc);
         gbc.gridx = 1; panel.add(tipoVistoria, gbc);
-        
         gbc.gridy = 4; gbc.gridx = 0; panel.add(new JLabel("Veículo:"), gbc);
         gbc.gridx = 1; panel.add(veiculoAgendarComboBox, gbc);
-
         gbc.gridy = 5; gbc.gridx = 0; gbc.gridwidth = 2; panel.add(agendarButton, gbc);
 
         // Lógica para agendar a vistoria
@@ -330,7 +330,7 @@ public class DashboardCliente extends JFrame {
                 JOptionPane.showMessageDialog(this, "Por favor, preencha todos os campos e selecione um veículo.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
+            
             Veiculo veiculoSelecionado = veiculoMap.get(veiculoSelecionadoStr);
             if (veiculoSelecionado == null) {
                 JOptionPane.showMessageDialog(this, "Veículo não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -355,7 +355,11 @@ public class DashboardCliente extends JFrame {
         return panel;
     }
 
-    // --- Formulário Cadastrar Veículo ---
+    /**
+     * Cria e retorna o painel para cadastrar um novo veículo.
+     *
+     * @return O JPanel do formulário de cadastro de veículo.
+     */
     private JPanel criarPainelCadastrarVeiculo() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(BACKGROUND_COLOR);
@@ -366,7 +370,8 @@ public class DashboardCliente extends JFrame {
         JLabel title = new JLabel("Cadastrar Veículo");
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(Color.DARK_GRAY);
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.WEST; panel.add(title, gbc);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.WEST;
+        panel.add(title, gbc);
 
         JTextField placaField = new JTextField(20);
         JComboBox<String> tipoVeiculoComboBox = new JComboBox<>(new String[]{"Carro", "Moto", "Caminhão"});
@@ -378,30 +383,22 @@ public class DashboardCliente extends JFrame {
         observacoesArea.setLineWrap(true);
         observacoesArea.setWrapStyleWord(true);
         JScrollPane observacoesScrollPane = new JScrollPane(observacoesArea);
-
         JButton cadastrarButton = new JButton("Cadastrar Veículo");
 
         gbc.gridy = 1; gbc.gridx = 0; gbc.gridwidth = 1; panel.add(new JLabel("Placa:"), gbc);
         gbc.gridx = 1; panel.add(placaField, gbc);
-
         gbc.gridy = 2; gbc.gridx = 0; panel.add(new JLabel("Tipo de Veículo:"), gbc);
         gbc.gridx = 1; panel.add(tipoVeiculoComboBox, gbc);
-        
         gbc.gridy = 3; gbc.gridx = 0; panel.add(new JLabel("Nome do Veículo:"), gbc);
         gbc.gridx = 1; panel.add(nomeVeiculoField, gbc);
-        
         gbc.gridy = 4; gbc.gridx = 0; panel.add(new JLabel("Modelo:"), gbc);
         gbc.gridx = 1; panel.add(modeloField, gbc);
-
         gbc.gridy = 5; gbc.gridx = 0; panel.add(new JLabel("Ano:"), gbc);
         gbc.gridx = 1; panel.add(anoVeiculoField, gbc);
-
         gbc.gridy = 6; gbc.gridx = 0; panel.add(new JLabel("Chassi:"), gbc);
         gbc.gridx = 1; panel.add(chassiField, gbc);
-
         gbc.gridy = 7; gbc.gridx = 0; panel.add(new JLabel("Observações:"), gbc);
         gbc.gridx = 1; panel.add(observacoesScrollPane, gbc);
-
         gbc.gridy = 8; gbc.gridx = 0; gbc.gridwidth = 2; panel.add(cadastrarButton, gbc);
 
         cadastrarButton.addActionListener(e -> {
@@ -420,8 +417,8 @@ public class DashboardCliente extends JFrame {
                 }
 
                 Veiculo novoVeiculo = new Veiculo(placa, tipo, nome, modelo, ano, chassi, observacoes, clienteLogado.getIdCliente());
-
                 boolean sucesso = veiculoController.cadastrarVeiculo(novoVeiculo);
+                
                 if (sucesso) {
                     JOptionPane.showMessageDialog(this, "Veículo " + placa + " cadastrado com sucesso!");
                     placaField.setText("");
@@ -442,7 +439,11 @@ public class DashboardCliente extends JFrame {
         return panel;
     }
 
-    // --- Painel Emitir Laudo ---
+    /**
+     * Cria e retorna o painel para listar e emitir laudos.
+     *
+     * @return O JPanel do painel de laudos.
+     */
     private JPanel criarPainelEmitirLaudo() {
         JPanel panel = new JPanel(new BorderLayout(20, 20));
         panel.setBackground(BACKGROUND_COLOR);
@@ -453,6 +454,7 @@ public class DashboardCliente extends JFrame {
         panel.add(title, BorderLayout.NORTH);
 
         DefaultListModel<String> listModel = new DefaultListModel<>();
+        // Dados de exemplo, isso deve ser carregado do banco de dados na implementação final
         listModel.addElement("Laudo 01 - 15/08/2025");
         listModel.addElement("Laudo 02 - 10/07/2025");
         listModel.addElement("Laudo 03 - 20/06/2025");
@@ -480,6 +482,72 @@ public class DashboardCliente extends JFrame {
         return panel;
     }
 
+    // --- Métodos de Lógica de Negócio ---
+
+    /**
+     * Carrega os veículos do banco de dados para o cliente logado e popula o JComboBox.
+     * Também limpa e preenche o mapeamento de placas para veículos.
+     */
+    private void carregarVeiculosComboBox() {
+        veiculoAgendarComboBox.removeAllItems();
+        veiculoMap.clear();
+
+        List<Veiculo> veiculos = veiculoController.listarVeiculosPorCliente(clienteLogado.getIdCliente());
+        if (veiculos.isEmpty()) {
+            veiculoAgendarComboBox.addItem("Nenhum veículo cadastrado");
+            veiculoAgendarComboBox.setEnabled(false);
+        } else {
+            veiculoAgendarComboBox.setEnabled(true);
+            for (Veiculo v : veiculos) {
+                String item = v.getPlaca() + " - " + v.getNome_veiculo();
+                veiculoAgendarComboBox.addItem(item);
+                veiculoMap.put(item, v); // Mapeia a string exibida para o objeto Veiculo
+            }
+        }
+    }
+    
+    /**
+     * Atualiza os labels dos cards do dashboard com dados do banco de dados.
+     * Isso é chamado no início e após cada ação de sucesso, como agendar um novo serviço.
+     */
+    private void atualizarCardsDashboard() {
+        int numVeiculos = veiculoController.contarVeiculosPorCliente(clienteLogado.getIdCliente());
+        int numAgendamentos = agendamentoController.contarAgendamentosPorCliente(clienteLogado.getIdCliente());
+        int numLaudos = agendamentoController.contarLaudosConcluidosPorCliente(clienteLogado.getIdCliente());
+        
+        // Atualiza os labels com os valores reais
+        if (agendamentosValueLabel != null) {
+            agendamentosValueLabel.setText(String.valueOf(numAgendamentos));
+        }
+        if (laudosValueLabel != null) {
+            laudosValueLabel.setText(String.valueOf(numLaudos));
+        }
+        if (veiculosValueLabel != null) {
+            veiculosValueLabel.setText(String.valueOf(numVeiculos));
+        }
+    }
+
+    // --- Métodos de Utilidade (Helpers) ---
+
+    /**
+     * Carrega um ícone a partir do caminho especificado e o redimensiona.
+     *
+     * @param path O caminho do arquivo do ícone.
+     * @param largura A largura desejada para o ícone.
+     * @param altura A altura desejada para o ícone.
+     * @return O ImageIcon redimensionado.
+     */
+    private ImageIcon carregarIcone(String path, int largura, int altura) {
+        ImageIcon icon = new ImageIcon(getClass().getResource(path));
+        Image image = icon.getImage().getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
+        return new ImageIcon(image);
+    }
+    
+    /**
+     * Método principal para iniciar a aplicação, útil para testes.
+     *
+     * @param args Argumentos da linha de comando (não utilizados).
+     */
     public static void main(String[] args) {
         Cliente clienteExemplo = new Cliente(1, "João da Silva", "joao@email.com",
                 "12345678900", "senha", "999999999");

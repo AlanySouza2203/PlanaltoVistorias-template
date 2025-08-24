@@ -1,7 +1,9 @@
 package Vistoria.view;
 
 import Vistoria.dao.ClienteDAO;
+import Vistoria.dao.FuncionarioDAO;
 import Vistoria.model.Cliente;
+import Vistoria.model.Funcionario;
 
 import javax.swing.*;
 import java.awt.*;
@@ -61,7 +63,7 @@ public class Login extends JFrame {
         JTextField cpfField = new JTextField();
         JPasswordField senhaField = new JPasswordField();
 
-        JPanel cpfPanel = criarCampoComLabel("CPF:", cpfField);
+        JPanel cpfPanel = criarCampoComLabel("CPF/Matrícula:", cpfField);
         JPanel senhaPanel = criarCampoComLabel("Senha:", senhaField);
 
         JButton loginButton = new JButton("Login");
@@ -76,22 +78,34 @@ public class Login extends JFrame {
 
         // --- Ação do botão de login ---
         loginButton.addActionListener(e -> {
-            String cpf = cpfField.getText().trim();
+            String matriculaOuCpf = cpfField.getText().trim();
             String senha = new String(senhaField.getPassword()).trim();
 
-            if (cpf.isEmpty() || senha.isEmpty()) {
+            if (matriculaOuCpf.isEmpty() || senha.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            ClienteDAO dao = new ClienteDAO();
-            Cliente clienteLogado = dao.login(cpf, senha);
+            // Tenta fazer o login como FUNCIONÁRIO/GERENTE primeiro
+            FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
+            Funcionario funcionarioLogado = funcionarioDAO.login(matriculaOuCpf, senha);
+
+            if (funcionarioLogado != null) {
+                JOptionPane.showMessageDialog(this, "Login de Funcionário realizado com sucesso! Bem-vindo, " + funcionarioLogado.getNome() + ".");
+                // O dashboard do gerente precisa ser ajustado para receber o objeto Funcionario
+                new DashboardGerente(funcionarioLogado).setVisible(true);
+                dispose();
+                return;
+            }
+
+            // Se não for um funcionário, tenta fazer o login como CLIENTE
+            ClienteDAO clienteDAO = new ClienteDAO();
+            Cliente clienteLogado = clienteDAO.login(matriculaOuCpf, senha);
 
             if (clienteLogado != null) {
-                JOptionPane.showMessageDialog(this, "Login realizado com sucesso! Bem-vindo, " + clienteLogado.getNome() + ".");
-                // Aqui você pode abrir a próxima tela, ex: DashboardCliente
+                JOptionPane.showMessageDialog(this, "Login de Cliente realizado com sucesso! Bem-vindo, " + clienteLogado.getNome() + ".");
                 new DashboardCliente(clienteLogado).setVisible(true);
-                dispose(); // fecha a tela de login
+                dispose(); 
             } else {
                 JOptionPane.showMessageDialog(this, "CPF ou senha incorretos!", "Erro", JOptionPane.ERROR_MESSAGE);
             }
