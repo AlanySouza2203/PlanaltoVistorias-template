@@ -3,7 +3,7 @@ package Vistoria.view;
 import Vistoria.model.Cliente;
 import Vistoria.model.Funcionario;
 import Vistoria.dao.FuncionarioDAO;
-import Vistoria.controller.FuncionarioController; 
+import Vistoria.controller.FuncionarioController;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -15,7 +15,7 @@ import java.util.List;
 public class DashboardGerente extends JFrame {
 
     private final Funcionario funcionarioLogado;
-    private final FuncionarioController funcionarioController; // Controller para a lógica
+    private final FuncionarioController funcionarioController;
     private JPanel cardPanel;
     private CardLayout cardLayout;
 
@@ -46,24 +46,34 @@ public class DashboardGerente extends JFrame {
 
         JButton btnCadastroFuncionario = criarBotaoLateral("Cadastro Funcionário");
         JButton btnListarFuncionario = criarBotaoLateral("Listar Funcionários");
+        JButton btnRelatorios = criarBotaoLateral("Relatórios");
+        JButton btnFinanceiro = criarBotaoLateral("Finanças");
         JButton btnLogout = criarBotaoLateral("Sair");
 
         sidebarPanel.add(btnCadastroFuncionario);
         sidebarPanel.add(btnListarFuncionario);
+        sidebarPanel.add(btnRelatorios);
+        sidebarPanel.add(btnFinanceiro);
         sidebarPanel.add(Box.createVerticalGlue());
         sidebarPanel.add(btnLogout);
 
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
 
+        // Adicionando as novas telas ao CardLayout
         cardPanel.add(criarPainelCadastroFuncionario(), "CadastroFuncionario");
         cardPanel.add(criarPainelListarFuncionario(), "ListarFuncionario");
+        cardPanel.add(criarPainelRelatorios(), "Relatorios");
+        cardPanel.add(criarPainelFinanceiro(), "Financas");
 
         btnCadastroFuncionario.addActionListener(e -> cardLayout.show(cardPanel, "CadastroFuncionario"));
         btnListarFuncionario.addActionListener(e -> {
             atualizarTabelaFuncionarios();
             cardLayout.show(cardPanel, "ListarFuncionario");
         });
+        btnRelatorios.addActionListener(e -> cardLayout.show(cardPanel, "Relatorios"));
+        btnFinanceiro.addActionListener(e -> cardLayout.show(cardPanel, "Financas"));
+
         btnLogout.addActionListener(e -> {
             dispose();
             new Login().setVisible(true);
@@ -79,7 +89,6 @@ public class DashboardGerente extends JFrame {
 
     private void atualizarTabelaFuncionarios() {
         modelFuncionarios.setRowCount(0);
-        // Chama o método do Controller para obter os dados
         List<Funcionario> funcionarios = funcionarioController.listarFuncionarios();
         for (Funcionario f : funcionarios) {
             modelFuncionarios.addRow(new Object[]{
@@ -135,10 +144,8 @@ public class DashboardGerente extends JFrame {
             
             Funcionario novoFuncionario = new Funcionario(nome, email, matricula, senha, cargo);
             
-            // Chama o Controller para realizar o cadastro
             boolean sucesso = funcionarioController.cadastrarFuncionario(novoFuncionario);
             
-            // A View lida com o feedback para o usuário
             if (sucesso) {
                 String mensagemSucesso = "<html><b>Funcionário Cadastrado com Sucesso!</b><br><br>"
                     + "<b>Cargo:</b> " + cargo + "<br>"
@@ -177,6 +184,32 @@ public class DashboardGerente extends JFrame {
         
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
+        
+        return panel;
+    }
+
+    // --- Nova tela para Relatórios ---
+    private JPanel criarPainelRelatorios() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(240, 240, 240));
+        JLabel title = new JLabel("Gerar Relatórios", SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        panel.add(title);
+        
+        // Aqui você pode adicionar botões, campos de data ou gráficos para os relatórios
+        
+        return panel;
+    }
+    
+    // --- Nova tela para Finanças ---
+    private JPanel criarPainelFinanceiro() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(240, 240, 240));
+        JLabel title = new JLabel("Controle Financeiro", SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        panel.add(title);
+        
+        // Aqui você pode adicionar cards de valores, tabelas de receitas/despesas, etc.
         
         return panel;
     }
