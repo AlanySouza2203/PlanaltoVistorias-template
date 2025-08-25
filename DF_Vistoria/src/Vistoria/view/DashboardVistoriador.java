@@ -2,34 +2,32 @@ package Vistoria.view;
 
 import Vistoria.model.Funcionario;
 import Vistoria.model.Agendamento;
-import Vistoria.model.Cliente;
-import Vistoria.model.Veiculo;
+import Vistoria.model.Vistoria;
 import Vistoria.dao.AgendamentoDAO;
-import Vistoria.controller.VeiculoController;
 import Vistoria.controller.AgendamentoController;
-import Vistoria.controller.FuncionarioController;
+import Vistoria.controller.VeiculoController;
+import Vistoria.controller.VistoriaController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
+import java.time.LocalDate;
 
 /**
  * A classe DashboardVistoriador representa a interface principal do funcionário Vistoriador no sistema de vistoria.
- * Ela fornece uma dashboard com informações resumidas e painéis para listar agendamentos, Realizar vistorias e vizualizar relatório diário.
+ * Ela fornece uma dashboard com informações resumidas de agendamentos e painéis para: listar agendamentos, realizar vistorias e vizualizar relatório diário.
  */
-
 public class DashboardVistoriador extends JFrame {
-	
-	// --- Atributos de Lógica de Negócio e Controladores ---
+
+    // --- Atributos de Lógica de Negócio e Controladores ---
     private final Funcionario funcionarioLogado;
     private final AgendamentoController agendamentoController;
     private final AgendamentoDAO agendamentoDAO;
     private final VeiculoController veiculoController;
+    private final VistoriaController vistoriaController; // Novo controlador para vistoria
 
     // --- Atributos de Componentes da Interface (UI) ---
     private JPanel cardPanel;
@@ -39,39 +37,44 @@ public class DashboardVistoriador extends JFrame {
     private JLabel agendamentosValueLabel;
     private JLabel agendamentos2ValueLabel;
     private JLabel agendamentos3ValueLabel;
-    private JLabel agendamentos4ValueLabel;
-    
-    // Atributos para a nova tela de agendamentos
+
+    // Atributos para a tela de agendamentos
     private JTable agendamentosTable;
     private DefaultTableModel agendamentosTableModel;
     private List<Agendamento> listaAgendamentosAgendados;
     private JButton btnRealizarVistoria;
     private JButton btnAtualizarTabela;
-    
+
+    // Atributos para a nova tela de realizar vistoria
+    private Agendamento agendamentoSelecionado; // Para passar o objeto entre telas
+    private JComboBox<String> resultadoComboBox;
+    private JTextArea observacoesTextArea;
+    private JLabel clienteLabel;
+    private JLabel veiculoLabel;
+
+    // --- Atributos para a nova tela de relatório
+    private JTable relatorioTable;
+    private DefaultTableModel relatorioTableModel;
+
     // --- Paleta de Cores e Constantes de Estilo ---
     private static final Color SIDEBAR_COLOR = new Color(33, 150, 243); // Azul lateral
     private static final Color BACKGROUND_COLOR = new Color(245, 245, 245); // Fundo cinza claro
     private static final Color CARD_BACKGROUND = Color.WHITE;
-
-    // Cores dos títulos dos cards
     private static final Color CARD_TITLE_ORANGE = new Color(255, 152, 0);
     private static final Color CARD_TITLE_GREEN = new Color(0, 150, 136);
     private static final Color CARD_TITLE_RED = new Color(244, 67, 54);
-    
-    // Cor dos números nos cards
     private static final Color CARD_VALUE_BLUE = new Color(33, 150, 243);
-    
-    
+
     /**
      * Construtor da classe DashboardVistoriador para o objeto Vistoriador que está logado no sistema.
      */
-    
     public DashboardVistoriador(Funcionario funcionario) {
     	this.funcionarioLogado = funcionario;
     	this.agendamentoController = new AgendamentoController();
     	this.agendamentoDAO = new AgendamentoDAO();
         this.veiculoController = new VeiculoController();
-    	
+        this.vistoriaController = new VistoriaController();
+
     	//Configurações básicas da janela
     	setTitle("Dashboard do Vistoriador");
         setSize(1100, 750);
@@ -81,7 +84,7 @@ public class DashboardVistoriador extends JFrame {
 
         // --- Inicialização e adição dos painéis principais ---
         JPanel sidebarPanel = criarPainelSidebar();
-        
+
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
         cardPanel.setBackground(BACKGROUND_COLOR);
@@ -89,26 +92,21 @@ public class DashboardVistoriador extends JFrame {
 
         cardPanel.add(criarPainelDashboardInicial(), "Dashboard");
         cardPanel.add(criarPainelAgendamento(), "Agendamento");
-        cardPanel.add(criarPainelRealizarVistoria(), "RealizarVistoria");
         cardPanel.add(criarPainelRelatorio(), "Relatorio");
+        // O painel de vistoria será adicionado dinamicamente
 
         add(sidebarPanel, BorderLayout.WEST);
         add(cardPanel, BorderLayout.CENTER);
-        
+
         // --- Ações dos botões e inicialização de dados ---
         configurarAcoesBotoes(sidebarPanel);
         atualizarCardsDashboard();
-        
+
         setVisible(true);
     }
+
     // --- Métodos de Criação de Painéis e Componentes de UI ---
 
-    /**
-     * Cria e retorna o painel da barra lateral.
-     *
-     * @return O JPanel da barra lateral.
-     */
-    
     private JPanel criarPainelSidebar() {
     	JPanel sidebarPanel = new JPanel();
         sidebarPanel.setBackground(SIDEBAR_COLOR);
@@ -125,7 +123,6 @@ public class DashboardVistoriador extends JFrame {
 
         JButton btnDashboard = criarBotaoLateral("Dashboard");
         JButton btnAgendamento = criarBotaoLateral("Agendamentos");
-        JButton btnVistoria = criarBotaoLateral("Realizar Vistoria");
         JButton btnRelatorio = criarBotaoLateral("Exibir Relatório");
         JButton btnLogout = criarBotaoLateral("Sair");
 
@@ -133,28 +130,19 @@ public class DashboardVistoriador extends JFrame {
         sidebarPanel.add(Box.createVerticalStrut(15));
         sidebarPanel.add(btnAgendamento);
         sidebarPanel.add(Box.createVerticalStrut(15));
-        sidebarPanel.add(btnVistoria);
-        sidebarPanel.add(Box.createVerticalStrut(15));
         sidebarPanel.add(btnRelatorio);
         sidebarPanel.add(Box.createVerticalGlue());
         sidebarPanel.add(btnLogout);
-        
+
     	return sidebarPanel;
     }
-    
-    /**
-     * Configura as ações de clique para os botões da barra lateral.
-     *
-     * @param sidebarPanel O painel da barra lateral que contém os botões.
-     */
+
     private void configurarAcoesBotoes(JPanel sidebarPanel) {
-    	// Encontra os botões do painel lateral para configurar as ações
         JButton btnDashboard = (JButton) sidebarPanel.getComponent(2);
         JButton btnAgendamento = (JButton) sidebarPanel.getComponent(4);
-        JButton btnVistoria = (JButton) sidebarPanel.getComponent(6);
-        JButton btnRelatorio = (JButton) sidebarPanel.getComponent(8);
-        JButton btnLogout = (JButton) sidebarPanel.getComponent(10);
-        
+        JButton btnRelatorio = (JButton) sidebarPanel.getComponent(6);
+        JButton btnLogout = (JButton) sidebarPanel.getComponent(8);
+
         btnDashboard.addActionListener(e -> {
             cardLayout.show(cardPanel, "Dashboard");
         });
@@ -162,18 +150,16 @@ public class DashboardVistoriador extends JFrame {
             popularTabelaAgendamentos();
             cardLayout.show(cardPanel, "Agendamento");
         });
-        btnVistoria.addActionListener(e -> cardLayout.show(cardPanel, "RealizarVistoria"));
-        btnRelatorio.addActionListener(e -> cardLayout.show(cardPanel, "Relatorio"));
+        btnRelatorio.addActionListener(e -> {
+            popularTabelaRelatorio(); // Chama o método para popular a tabela do relatório
+            cardLayout.show(cardPanel, "Relatorio");
+        });
         btnLogout.addActionListener(e -> {
             dispose();
             new Login().setVisible(true);
         });
     }
-    /**
-     * Cria e retorna o painel inicial do dashboard, com os cards de informação.
-     *
-     * @return O JPanel do dashboard inicial.
-     */
+
     private JPanel criarPainelDashboardInicial() {
     	JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -191,30 +177,21 @@ public class DashboardVistoriador extends JFrame {
 
         JPanel cardAgendamento1 = criarCardInfo("Agendado");
         agendamentosValueLabel = (JLabel) ((BorderLayout) cardAgendamento1.getLayout()).getLayoutComponent(BorderLayout.CENTER);
-        
+
         JPanel cardAgendamento2 = criarCardInfo("Concluídos");
         agendamentos2ValueLabel = (JLabel) ((BorderLayout) cardAgendamento2.getLayout()).getLayoutComponent(BorderLayout.CENTER);
-        
+
         JPanel cardAgendamento3 = criarCardInfo("Cancelados");
         agendamentos3ValueLabel = (JLabel) ((BorderLayout) cardAgendamento3.getLayout()).getLayoutComponent(BorderLayout.CENTER);
-        
-        JPanel cardAgendamento4 = criarCardInfo("Reservados");
-        agendamentos4ValueLabel = (JLabel) ((BorderLayout) cardAgendamento4.getLayout()).getLayoutComponent(BorderLayout.CENTER);
+
         cardsPanel.add(cardAgendamento1);
         cardsPanel.add(cardAgendamento2);
         cardsPanel.add(cardAgendamento3);
-        cardsPanel.add(cardAgendamento4);
-        
+
         panel.add(cardsPanel);
         return panel;
     }
-    /**
-     * Cria um card de informação estilizado com ícone, título e valor.
-     *
-     * @param titulo O texto do título do card.
-     * @param iconPath O caminho do ícone.
-     * @return O JPanel do card de informação.
-     */
+
     private JPanel criarCardInfo(String titulo) {
         JPanel card = new JPanel(new BorderLayout(0, 10)) {
             @Override
@@ -234,15 +211,13 @@ public class DashboardVistoriador extends JFrame {
 
         JLabel titleLabel = new JLabel(titulo);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        
+
         if (titulo.contains("Agendado")) {
             titleLabel.setForeground(CARD_TITLE_ORANGE);
         } else if (titulo.contains("Concluídos")) {
             titleLabel.setForeground(CARD_TITLE_GREEN);
         } else if (titulo.contains("Cancelados")) {
             titleLabel.setForeground(CARD_TITLE_RED);
-        } else if (titulo.contains("Reservados")) {
-            titleLabel.setForeground(CARD_VALUE_BLUE);
         }
 
         JLabel valueLabel = new JLabel("0");
@@ -259,13 +234,7 @@ public class DashboardVistoriador extends JFrame {
 
         return card;
     }
-    /**
-     * Cria e retorna um botão estilizado para a barra lateral.
-     *
-     * @param texto O texto do botão.
-     * @param icon O ícone do botão.
-     * @return O JButton estilizado.
-     */
+
     private JButton criarBotaoLateral(String texto) {
         JButton button = new JButton(texto);
         button.setOpaque(false);
@@ -280,7 +249,6 @@ public class DashboardVistoriador extends JFrame {
         button.setIconTextGap(12);
         button.setBorder(new EmptyBorder(12, 20, 12, 20));
 
-        // Efeito de hover
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(new Color(21, 101, 192));
@@ -291,31 +259,23 @@ public class DashboardVistoriador extends JFrame {
                 button.setOpaque(false);
             }
         });
-
         return button;
     }
-    /**
-     * Cria e retorna o painel para vizualizar as vistorias cadastradas no sistema.
-     *
-     * @return O JPanel do formulário de agendamento.
-     */
+
     private JPanel criarPainelAgendamento() {
         JPanel panel = new JPanel(new BorderLayout(20, 20));
         panel.setBackground(BACKGROUND_COLOR);
 
-        // Título do painel
         JLabel title = new JLabel("Agendamentos marcados como: Agendado");
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(Color.DARK_GRAY);
-        title.setBorder(new EmptyBorder(0, 0, 20, 0)); // Espaçamento inferior
+        title.setBorder(new EmptyBorder(0, 0, 20, 0));
         panel.add(title, BorderLayout.NORTH);
 
-        // Configuração da tabela
         String[] colunas = {"ID", "Data", "Hora", "Cliente", "Placa do Veículo"};
         agendamentosTableModel = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // Desabilita a edição das células da tabela
                 return false;
             }
         };
@@ -324,45 +284,40 @@ public class DashboardVistoriador extends JFrame {
         agendamentosTable.setRowHeight(30);
         agendamentosTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         agendamentosTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
-        // Adiciona a funcionalidade de selecionar apenas uma linha
+
         agendamentosTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 btnRealizarVistoria.setEnabled(agendamentosTable.getSelectedRow() != -1);
             }
         });
-        
+
         JScrollPane scrollPane = new JScrollPane(agendamentosTable);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder()); // Remove a borda padrão do scroll pane
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        // Painel para os botões na parte inferior
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonsPanel.setBackground(BACKGROUND_COLOR);
 
-        // Botão Realizar Vistoria
         btnRealizarVistoria = new JButton("Realizar Vistoria");
         btnRealizarVistoria.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        btnRealizarVistoria.setBackground(new Color(66, 133, 244)); // Google Blue
+        btnRealizarVistoria.setBackground(new Color(66, 133, 244));
         btnRealizarVistoria.setForeground(Color.WHITE);
         btnRealizarVistoria.setBorderPainted(false);
         btnRealizarVistoria.setFocusPainted(false);
-        btnRealizarVistoria.setEnabled(false); // Inicia desabilitado
+        btnRealizarVistoria.setEnabled(false);
         btnRealizarVistoria.addActionListener(e -> {
             int selectedRow = agendamentosTable.getSelectedRow();
             if (selectedRow != -1) {
-                // Obtém o objeto Agendamento selecionado da lista
-                Agendamento agendamentoSelecionado = listaAgendamentosAgendados.get(selectedRow);
-                // Aqui sai da tela de agendamentos e segue para realizar vistoria.
-                JOptionPane.showMessageDialog(this, "Preparando para realizar vistoria do agendamento ID: " + agendamentoSelecionado.getIdAgendamento(), "Ação", JOptionPane.INFORMATION_MESSAGE);
+                agendamentoSelecionado = listaAgendamentosAgendados.get(selectedRow);
+                // Prepara e exibe o painel de vistoria
+                exibirPainelRealizarVistoria(agendamentoSelecionado);
             }
         });
         buttonsPanel.add(btnRealizarVistoria);
 
-        // Botão Atualizar Tabela
         btnAtualizarTabela = new JButton("Atualizar Tabela");
         btnAtualizarTabela.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        btnAtualizarTabela.setBackground(new Color(52, 168, 83)); // Google Green
+        btnAtualizarTabela.setBackground(new Color(52, 168, 83));
         btnAtualizarTabela.setForeground(Color.WHITE);
         btnAtualizarTabela.setBorderPainted(false);
         btnAtualizarTabela.setFocusPainted(false);
@@ -373,68 +328,186 @@ public class DashboardVistoriador extends JFrame {
         buttonsPanel.add(btnAtualizarTabela);
 
         panel.add(buttonsPanel, BorderLayout.SOUTH);
-
-        // Chama o método para popular a tabela com os dados iniciais
         popularTabelaAgendamentos();
 
         return panel;
     }
-    
+
     /**
      * Cria e retorna o painel para realizar uma vistoria a partir de um agendamento.
-     *
-     * @return O JPanel do formulário de agendamento.
      */
     private JPanel criarPainelRealizarVistoria() {
-    	JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(BACKGROUND_COLOR);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 15, 15, 15);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+    	JPanel formPanel = new JPanel(new GridBagLayout());
+    	formPanel.setBackground(BACKGROUND_COLOR);
+    	GridBagConstraints gbc = new GridBagConstraints();
+    	gbc.insets = new Insets(10, 10, 10, 10);
+    	gbc.anchor = GridBagConstraints.WEST;
 
-        JLabel title = new JLabel("Realizar Vistoria?");
+        JLabel title = new JLabel("Formulário de Vistoria");
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(Color.DARK_GRAY);
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.WEST;
-        panel.add(title, gbc);
-        
-        return panel;
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(0, 0, 20, 0);
+        formPanel.add(title, gbc);
+
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Título "Detalhes do Agendamento"
+        JLabel detalhesTitle = new JLabel("Detalhes do Agendamento");
+        detalhesTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        detalhesTitle.setForeground(new Color(33, 150, 243));
+        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
+        formPanel.add(detalhesTitle, gbc);
+
+        // Labels para os detalhes do agendamento
+        clienteLabel = new JLabel("Cliente: ");
+        clienteLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
+        formPanel.add(clienteLabel, gbc);
+
+        veiculoLabel = new JLabel("Veículo: ");
+        veiculoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
+        formPanel.add(veiculoLabel, gbc);
+
+        // Título "Dados da Vistoria"
+        JLabel vistoriaTitle = new JLabel("Dados da Vistoria");
+        vistoriaTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        vistoriaTitle.setForeground(new Color(33, 150, 243));
+        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2; gbc.insets = new Insets(20, 10, 10, 10);
+        formPanel.add(vistoriaTitle, gbc);
+
+        // Resultado da Vistoria
+        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 1; gbc.insets = new Insets(10, 10, 10, 10);
+        formPanel.add(new JLabel("Resultado:"), gbc);
+
+        resultadoComboBox = new JComboBox<>(new String[]{"Aprovado", "Reprovado", "Aprovado com ressalvas"});
+        resultadoComboBox.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        gbc.gridx = 1; gbc.gridy = 5; gbc.gridwidth = 1;
+        formPanel.add(resultadoComboBox, gbc);
+
+        // Observações
+        gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 1; gbc.anchor = GridBagConstraints.NORTHWEST;
+        formPanel.add(new JLabel("Observações:"), gbc);
+
+        observacoesTextArea = new JTextArea(5, 20);
+        observacoesTextArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        observacoesTextArea.setLineWrap(true);
+        observacoesTextArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(observacoesTextArea);
+        gbc.gridx = 1; gbc.gridy = 6; gbc.gridwidth = 1; gbc.weighty = 1.0; gbc.fill = GridBagConstraints.BOTH;
+        formPanel.add(scrollPane, gbc);
+
+        // Botão de Submeter
+        JButton btnSalvarVistoria = new JButton("Salvar Vistoria");
+        btnSalvarVistoria.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btnSalvarVistoria.setBackground(new Color(52, 168, 83));
+        btnSalvarVistoria.setForeground(Color.WHITE);
+        btnSalvarVistoria.setBorderPainted(false);
+        btnSalvarVistoria.setFocusPainted(false);
+        gbc.gridx = 0; gbc.gridy = 7; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(20, 10, 10, 10);
+
+        btnSalvarVistoria.addActionListener(e -> {
+            String resultado = (String) resultadoComboBox.getSelectedItem();
+            String observacoes = observacoesTextArea.getText();
+
+            // Lógica para salvar a vistoria no banco de dados
+            try {
+                vistoriaController.realizarVistoria(
+                    agendamentoSelecionado,
+                    funcionarioLogado,
+                    resultado,
+                    observacoes
+                );
+                JOptionPane.showMessageDialog(this, "Vistoria registrada com sucesso e agendamento concluído!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                // Volta para a tela de agendamentos e atualiza a tabela
+                popularTabelaAgendamentos();
+                atualizarCardsDashboard();
+                cardLayout.show(cardPanel, "Agendamento");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao salvar a vistoria: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        formPanel.add(btnSalvarVistoria, gbc);
+
+    	return formPanel;
     }
+
     /**
-     * Cria e retorna o painel para vizualizar um relatório de vistorias realizadas.
-     *
-     * @return O JPanel do formulário de agendamento.
+     * Prepara e exibe o painel de vistoria com os dados do agendamento selecionado.
      */
+    private void exibirPainelRealizarVistoria(Agendamento agendamento) {
+        // Limpa o painel e recria com os novos dados
+        if (cardPanel.getComponentCount() > 3) {
+            cardPanel.remove(3);
+        }
+        cardPanel.add(criarPainelRealizarVistoria(), "RealizarVistoria");
+
+        // Atualiza os labels com as informações do agendamento
+        clienteLabel.setText("Cliente: " + agendamento.getCliente().getNome() + " (ID: " + agendamento.getCliente().getIdCliente() + ")");
+        veiculoLabel.setText("Veículo: " + agendamento.getVeiculo().getNome_veiculo() + " (" + agendamento.getVeiculo().getPlaca() + ")");
+        observacoesTextArea.setText("");
+        resultadoComboBox.setSelectedIndex(0);
+
+        cardLayout.show(cardPanel, "RealizarVistoria");
+    }
+
     private JPanel criarPainelRelatorio() {
-    	JPanel panel = new JPanel(new GridBagLayout());
+    	JPanel panel = new JPanel(new BorderLayout(20, 20));
         panel.setBackground(BACKGROUND_COLOR);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 15, 15, 15);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel title = new JLabel("Relatórios");
+        JLabel title = new JLabel("Relatório de Vistorias Concluídas");
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(Color.DARK_GRAY);
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.WEST;
-        panel.add(title, gbc);
-        
+        title.setBorder(new EmptyBorder(0, 0, 20, 0));
+        panel.add(title, BorderLayout.NORTH);
+
+        String[] colunas = {"ID Vistoria", "Data", "Resultado", "Cliente", "Placa do Veículo"};
+        relatorioTableModel = new DefaultTableModel(colunas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        relatorioTable = new JTable(relatorioTableModel);
+        relatorioTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        relatorioTable.setRowHeight(30);
+        relatorioTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        relatorioTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JScrollPane scrollPane = new JScrollPane(relatorioTable);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        panel.add(scrollPane, BorderLayout.CENTER);
+
         return panel;
     }
-    
-    /**
-     * Atualiza os labels dos cards do dashboard com dados do banco de dados.
-     * Isso é chamado no início e após cada ação de sucesso, como agendar um novo serviço.
-     */
+
+    private void popularTabelaRelatorio() {
+        relatorioTableModel.setRowCount(0); // Limpa a tabela
+        // Usa o controller para obter a lista de vistorias do funcionário logado
+        // A lógica do DAO e Controller já garante que apenas vistorias de agendamentos concluídos serão retornadas.
+        List<Vistoria> vistoriasDoFuncionario = vistoriaController.getRelatorioVistorias(funcionarioLogado);
+
+        for (Vistoria vistoria : vistoriasDoFuncionario) {
+            relatorioTableModel.addRow(new Object[]{
+                vistoria.getIdVistoria(),
+                vistoria.getData_vistoria(),
+                vistoria.getResultado(),
+                vistoria.getAgendamento().getCliente().getNome(),
+                vistoria.getAgendamento().getVeiculo().getPlaca()
+            });
+        }
+    }
+
     private void atualizarCardsDashboard() {
-        int numVeiculos = veiculoController.contarVeiculosPorCliente(funcionarioLogado.getIdFuncionario());
-        int numAgendamentos = agendamentoController.contarAgendamentosPorCliente(funcionarioLogado.getIdFuncionario());
-        int numLaudos = agendamentoController.contarLaudosConcluidosPorCliente(funcionarioLogado.getIdFuncionario());
-        int numAgendamentoAgendado = agendamentoController.contarAgendamentosAgendado();
-        int numAgendamentoConcluido = agendamentoController.contarAgendamentosConcluido();
-        int numAgendamentoCancelado = agendamentoController.contarAgendamentosCancelado();
-        int numAgendamentoReservado = agendamentoController.contarAgendamentosReservado();
-        
-        // Atualiza os labels com os valores reais
+        int numAgendamentoAgendado = agendamentoDAO.contarAgendamentosAgendado();
+        int numAgendamentoConcluido = agendamentoDAO.contarAgendamentosConcluido();
+        int numAgendamentoCancelado = agendamentoDAO.contarAgendamentosCancelado();
+
         if (agendamentosValueLabel != null) {
             agendamentosValueLabel.setText(String.valueOf(numAgendamentoAgendado));
         }
@@ -444,23 +517,13 @@ public class DashboardVistoriador extends JFrame {
         if (agendamentos3ValueLabel != null) {
             agendamentos3ValueLabel.setText(String.valueOf(numAgendamentoCancelado));
         }
-        if (agendamentos4ValueLabel != null) {
-        	agendamentos4ValueLabel.setText(String.valueOf(numAgendamentoReservado));
-        }
     }
 
-    /**
-     * Popula a tabela de agendamentos com os dados do banco de dados.
-     */
     private void popularTabelaAgendamentos() {
-        // Limpa os dados existentes na tabela
         agendamentosTableModel.setRowCount(0);
         listaAgendamentosAgendados = new ArrayList<>();
-
-        // Busca os agendamentos no banco de dados
         listaAgendamentosAgendados = agendamentoDAO.listarAgendamentosAgendadosComDetalhes();
 
-        // Preenche a tabela com os dados dos agendamentos
         for (Agendamento agendamento : listaAgendamentosAgendados) {
             agendamentosTableModel.addRow(new Object[]{
                 agendamento.getIdAgendamento(),
@@ -471,32 +534,13 @@ public class DashboardVistoriador extends JFrame {
             });
         }
     }
-    
-    // --- Métodos de Utilidade (Helpers) ---
 
-    /**
-     * Carrega um ícone a partir do caminho especificado e o redimensiona.
-     *
-     * @param path O caminho do arquivo do ícone.
-     * @param largura A largura desejada para o ícone.
-     * @param altura A altura desejada para o ícone.
-     * @return O ImageIcon redimensionado.
-     */
     private ImageIcon carregarIcone(String path, int largura, int altura) {
         ImageIcon icon = new ImageIcon(getClass().getResource(path));
         Image image = icon.getImage().getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
         return new ImageIcon(image);
     }
-    
-    /**
-     * Método principal para iniciar a aplicação, útil para testes.
-     *
-     * @param args Argumentos da linha de comando (não utilizados).
-     */
-	public static void main(String[] args) {
-        Funcionario funcionario = new Funcionario(4, "João da Silva", "joao@email.com",
-                "F-0001", "senha", "999999999");
-		SwingUtilities.invokeLater(() -> new DashboardVistoriador(funcionario));
-	}
 
+	public static void main(String[] args) {
+	}
 }

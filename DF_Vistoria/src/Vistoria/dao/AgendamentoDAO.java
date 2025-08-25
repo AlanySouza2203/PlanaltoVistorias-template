@@ -279,4 +279,19 @@ public class AgendamentoDAO {
         }
         return agendamentos;
     }
+    
+ // Método para atualizar o status de um agendamento
+    public boolean atualizarStatusAgendamento(int idAgendamento, String novoStatus) {
+        String sql = "UPDATE agendamento SET status_agendamento = ? WHERE idAgendamento = ?";
+        try (Connection conn = Conexao.getConnection();
+        	PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, novoStatus);
+            stmt.setInt(2, idAgendamento);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar status do agendamento: " + e.getMessage());
+            return false;
+        }
+    }
 }

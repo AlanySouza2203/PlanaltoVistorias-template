@@ -33,7 +33,7 @@ public class DashboardGerente extends JFrame {
 
         JPanel sidebarPanel = new JPanel();
         sidebarPanel.setBackground(new Color(33, 150, 243));
-        sidebarPanel.setPreferredSize(new Dimension(260, getHeight()));
+        sidebarPanel.setPreferredSize(new Dimension(240, getHeight()));
         sidebarPanel.setLayout(new BoxLayout(sidebarPanel, BoxLayout.Y_AXIS));
         sidebarPanel.setBorder(new EmptyBorder(20, 10, 20, 10));
 
@@ -283,4 +283,9 @@ public class DashboardGerente extends JFrame {
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setPreferredSize(new Dimension(200, 40));
     }
+    
+    public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
 }
