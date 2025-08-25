@@ -86,14 +86,21 @@ public class Login extends JFrame {
                 return;
             }
 
-            // Tenta fazer o login como FUNCIONÁRIO/GERENTE primeiro
+            // Tenta fazer o login como FUNCIONÁRIO primeiro
             FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
             Funcionario funcionarioLogado = funcionarioDAO.login(matriculaOuCpf, senha);
 
             if (funcionarioLogado != null) {
                 JOptionPane.showMessageDialog(this, "Login de Funcionário realizado com sucesso! Bem-vindo, " + funcionarioLogado.getNome() + ".");
-                // O dashboard do gerente precisa ser ajustado para receber o objeto Funcionario
-                new DashboardGerente(funcionarioLogado).setVisible(true);
+                
+                // --- MODIFICAÇÃO AQUI ---
+                // Verifica o cargo do funcionário para direcionar ao dashboard correto
+                if ("Vistoriador".equals(funcionarioLogado.getCargo())) {
+                    new DashboardVistoriador(funcionarioLogado).setVisible(true);
+                } else {
+                    // Direciona para o dashboard do gerente (ou outro cargo)
+                    new DashboardGerente(funcionarioLogado).setVisible(true);
+                }
                 dispose();
                 return;
             }
@@ -105,7 +112,7 @@ public class Login extends JFrame {
             if (clienteLogado != null) {
                 JOptionPane.showMessageDialog(this, "Login de Cliente realizado com sucesso! Bem-vindo, " + clienteLogado.getNome() + ".");
                 new DashboardCliente(clienteLogado).setVisible(true);
-                dispose(); 
+                dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "CPF ou senha incorretos!", "Erro", JOptionPane.ERROR_MESSAGE);
             }
