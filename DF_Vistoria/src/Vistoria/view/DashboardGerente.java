@@ -1,8 +1,10 @@
 package Vistoria.view;
 
+import Vistoria.model.Agendamento;
 import Vistoria.model.Cliente;
 import Vistoria.model.Funcionario;
 import Vistoria.dao.FuncionarioDAO;
+import Vistoria.dao.AgendamentoDAO;
 import Vistoria.controller.FuncionarioController;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -188,16 +190,98 @@ public class DashboardGerente extends JFrame {
         return panel;
     }
 
-    // --- Nova tela para Relatórios ---
+    // --- Nova tela para Relatórios e Agendamentos ---
     private JPanel criarPainelRelatorios() {
-        JPanel panel = new JPanel(new GridBagLayout());
+    	JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(240, 240, 240));
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        // Título
         JLabel title = new JLabel("Gerar Relatórios", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        panel.add(title);
-        
-        // Aqui você pode adicionar botões, campos de data ou gráficos para os relatórios
-        
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(10, 10, 20, 10);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(title, gbc);
+
+        // Label para status
+        JLabel lblStatus = new JLabel("Status:");
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(5, 10, 5, 10);
+        gbc.anchor = GridBagConstraints.LINE_END;
+        panel.add(lblStatus, gbc);
+
+        // Campo para digitar o status
+        JTextField txtStatus = new JTextField(15);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        panel.add(txtStatus, gbc);
+
+        // Colunas da tabela
+        String[] colunas = {"ID", "Data", "Hora", "Status", "ID Cliente", "ID Veículo"};
+        DefaultTableModel modeloTabela = new DefaultTableModel(colunas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // deixa a tabela somente leitura
+            }
+        };
+        JTable tabela = new JTable(modeloTabela);
+        JScrollPane scrollPane = new JScrollPane(tabela);
+        scrollPane.setPreferredSize(new Dimension(600, 300));
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.BOTH;
+        panel.add(scrollPane, gbc);
+
+        // Botão buscar
+        JButton btnBuscar = new JButton("Buscar");
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(btnBuscar, gbc);
+
+        // Instância do DAO para buscar os dados
+        FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
+
+        // Ação do botão buscar
+        btnBuscar.addActionListener(e -> {
+            String status = txtStatus.getText().trim();
+
+            if (status.isEmpty()) {
+                JOptionPane.showMessageDialog(panel, "Informe um status para buscar!", "Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            modeloTabela.setRowCount(0); // limpa tabela antes de carregar
+
+            List<Agendamento> agendamentos = funcionarioDAO.listarAgendamentosPorStatus(status);
+
+            for (Agendamento ag : agendamentos) {
+                Object[] linha = {
+                    ag.getIdAgendamento(),
+                    ag.getData_agendamento(),
+                    ag.getHora(),
+                    ag.getStatus_agendamento(),
+                    ag.getIdCliente(),
+                    ag.getIdVeiculo()
+                };
+                modeloTabela.addRow(linha);
+            }
+
+            if (agendamentos.isEmpty()) {
+                JOptionPane.showMessageDialog(panel, "Nenhum agendamento encontrado para o status: " + status);
+            }
+        });
+
         return panel;
     }
     
