@@ -32,20 +32,37 @@ public class AgendamentoDAO {
     }
 
     public List<Agendamento> listarAgendamentos() {
-        List<Agendamento> agendamentos = new ArrayList<>();
-        String sql = "SELECT * FROM agendamento";
+    	List<Agendamento> agendamentos = new ArrayList<>();
+        String sql = "SELECT a.idAgendamento, a.data_agendamento, a.hora, a.status_agendamento, " +
+                     "c.idCliente, c.nome AS nomeCliente, " +
+                     "v.idVeiculo, v.nome_veiculo AS nomeVeiculo " +
+                     "FROM agendamento a " +
+                     "JOIN cliente c ON a.idCliente = c.idCliente " +
+                     "JOIN veiculo v ON a.idVeiculo = v.idVeiculo";
+
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
+                // Cria os objetos Cliente e Veiculo
+                Cliente cliente = new Cliente();
+                cliente.setIdCliente(rs.getInt("idCliente"));
+                cliente.setNome(rs.getString("nomeCliente"));
+
+                Veiculo veiculo = new Veiculo();
+                veiculo.setIdVeiculo(rs.getInt("idVeiculo"));
+                veiculo.setNome_veiculo(rs.getString("nomeVeiculo"));
+
+                // Cria Agendamento e define os objetos
                 Agendamento agendamento = new Agendamento();
                 agendamento.setIdAgendamento(rs.getInt("idAgendamento"));
                 agendamento.setData_agendamento(rs.getString("data_agendamento"));
-                agendamento.setStatus_agendamento(rs.getString("status_agendamento"));
                 agendamento.setHora(rs.getString("hora"));
-                agendamento.setIdCliente(rs.getInt("idCliente"));
-                agendamento.setIdVeiculo(rs.getInt("idVeiculo"));
+                agendamento.setStatus_agendamento(rs.getString("status_agendamento"));
+                agendamento.setCliente(cliente);
+                agendamento.setVeiculo(veiculo);
+
                 agendamentos.add(agendamento);
             }
         } catch (SQLException e) {

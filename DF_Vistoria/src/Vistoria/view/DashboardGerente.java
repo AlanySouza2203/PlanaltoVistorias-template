@@ -192,9 +192,13 @@ public class DashboardGerente extends JFrame {
 
     // --- Nova tela para Relatórios e Agendamentos ---
     private JPanel criarPainelRelatorios() {
-    	JPanel panel = new JPanel(new GridBagLayout());
+        JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(240, 240, 240));
         GridBagConstraints gbc = new GridBagConstraints();
+
+        // DAO
+        AgendamentoDAO agendamentoDAO = new AgendamentoDAO();
+        FuncionarioDAO funcionariodao = new FuncionarioDAO();
 
         // Título
         JLabel title = new JLabel("Gerar Relatórios", SwingConstants.CENTER);
@@ -206,7 +210,7 @@ public class DashboardGerente extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(title, gbc);
 
-        // Label para status
+        // Label Status
         JLabel lblStatus = new JLabel("Status:");
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -215,19 +219,19 @@ public class DashboardGerente extends JFrame {
         gbc.anchor = GridBagConstraints.LINE_END;
         panel.add(lblStatus, gbc);
 
-        // Campo para digitar o status
+        // Campo Status
         JTextField txtStatus = new JTextField(15);
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.LINE_START;
         panel.add(txtStatus, gbc);
 
-        // Colunas da tabela
-        String[] colunas = {"ID", "Data", "Hora", "Status", "ID Cliente", "ID Veículo"};
+        // Tabela
+        String[] colunas = {"ID", "Data", "Hora", "Status", "Cliente", "Veículo"};
         DefaultTableModel modeloTabela = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // deixa a tabela somente leitura
+                return false;
             }
         };
         JTable tabela = new JTable(modeloTabela);
@@ -240,7 +244,7 @@ public class DashboardGerente extends JFrame {
         gbc.fill = GridBagConstraints.BOTH;
         panel.add(scrollPane, gbc);
 
-        // Botão buscar
+        // Botão Buscar
         JButton btnBuscar = new JButton("Buscar");
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -249,38 +253,53 @@ public class DashboardGerente extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(btnBuscar, gbc);
 
-        // Instância do DAO para buscar os dados
-        FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
+        // Método para popular tabela
+        Runnable carregarTabela = () -> {
+            modeloTabela.setRowCount(0); // limpa tabela
+            List<Agendamento> agendamentos = agendamentoDAO.listarAgendamentos(); // novo método no DAO
+            for (Agendamento ag : agendamentos) {
+                modeloTabela.addRow(new Object[]{
+                	    ag.getIdAgendamento(),
+                	    ag.getData_agendamento(),
+                	    ag.getHora(),
+                	    ag.getStatus_agendamento(),
+                	    ag.getCliente().getNome(),
+                	  ag.getVeiculo().getNome_veiculo()
+                });
+            }
+        };
 
-        // Ação do botão buscar
+        // Ação do botão Buscar
         btnBuscar.addActionListener(e -> {
             String status = txtStatus.getText().trim();
 
+            modeloTabela.setRowCount(0); // limpa tabela
+
+            List<Agendamento> agendamentos;
             if (status.isEmpty()) {
-                JOptionPane.showMessageDialog(panel, "Informe um status para buscar!", "Aviso", JOptionPane.WARNING_MESSAGE);
-                return;
+                agendamentos = agendamentoDAO.listarAgendamentos();
+            } else {
+                agendamentos = funcionariodao.listarAgendamentosPorStatus(status);
             }
 
-            modeloTabela.setRowCount(0); // limpa tabela antes de carregar
-
-            List<Agendamento> agendamentos = funcionarioDAO.listarAgendamentosPorStatus(status);
-
             for (Agendamento ag : agendamentos) {
-                Object[] linha = {
+                modeloTabela.addRow(new Object[]{
                     ag.getIdAgendamento(),
                     ag.getData_agendamento(),
                     ag.getHora(),
                     ag.getStatus_agendamento(),
                     ag.getIdCliente(),
                     ag.getIdVeiculo()
-                };
-                modeloTabela.addRow(linha);
+                });
             }
 
             if (agendamentos.isEmpty()) {
-                JOptionPane.showMessageDialog(panel, "Nenhum agendamento encontrado para o status: " + status);
+                JOptionPane.showMessageDialog(panel, "Nenhum agendamento encontrado.");
             }
         });
+
+        // Carrega todos ao iniciar
+        carregarTabela.run();
 
         return panel;
     }
