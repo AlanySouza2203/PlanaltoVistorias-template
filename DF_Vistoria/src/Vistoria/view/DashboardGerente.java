@@ -4,6 +4,8 @@ import Vistoria.model.Agendamento;
 import Vistoria.model.Cliente;
 import Vistoria.model.Funcionario;
 import Vistoria.dao.FuncionarioDAO;
+import Vistoria.dao.PagamentoDAO;
+import Vistoria.dao.PagamentoDAO.PagamentoInfo;
 import Vistoria.dao.AgendamentoDAO;
 import Vistoria.controller.FuncionarioController;
 import javax.swing.*;
@@ -288,8 +290,8 @@ public class DashboardGerente extends JFrame {
                     ag.getData_agendamento(),
                     ag.getHora(),
                     ag.getStatus_agendamento(),
-                    ag.getIdCliente(),
-                    ag.getIdVeiculo()
+                    ag.getCliente().getNome(),
+                    ag.getVeiculo().getNome_veiculo()
                 });
             }
 
@@ -308,12 +310,44 @@ public class DashboardGerente extends JFrame {
     private JPanel criarPainelFinanceiro() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(240, 240, 240));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.CENTER;
+
         JLabel title = new JLabel("Controle Financeiro", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        panel.add(title);
-        
-        // Aqui você pode adicionar cards de valores, tabelas de receitas/despesas, etc.
-        
+        panel.add(title, gbc);
+
+        // Tabela de pagamentos
+        gbc.gridy++;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+
+        String[] colunas = {"ID Pagamento", "Nome do Cliente", "Valor Pago", "Forma de Pagamento", "Data do Pagamento"};
+        DefaultTableModel model = new DefaultTableModel(colunas, 0);
+        JTable tabela = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(tabela);
+        scrollPane.setPreferredSize(new Dimension(700, 300));
+        panel.add(scrollPane, gbc);
+
+        // Carregar dados da DAO
+        PagamentoDAO dao = new PagamentoDAO();
+        List<PagamentoInfo> pagamentos = dao.listarPagamentosPagos();
+
+        for (PagamentoInfo info : pagamentos) {
+            model.addRow(new Object[]{
+                info.idPagamento,
+                info.nomeCliente,
+                info.valor,
+                info.formaPagamento,
+                info.dataPagamento
+            });
+        }
+
         return panel;
     }
     
