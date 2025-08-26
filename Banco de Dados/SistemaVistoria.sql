@@ -48,7 +48,7 @@ create table veiculo (
 create table agendamento (
     idAgendamento int primary key auto_increment,
     data_agendamento date not null,
-    status_agendamento enum("Agendado","Fechado","Pendente") not null,
+    status_agendamento enum("Concluido","Cancelado","Pendente") not null,
     hora time not null,
     idCliente int not null,
     idVeiculo int not null,
@@ -62,7 +62,8 @@ create table agendamento (
 create table vistoria (
     idVistoria int primary key auto_increment,
     data_vistoria date not null,
-    resultado enum("Aprovado","Reprovado") not null,
+    resultado enum("Aprovado","Reprovado","Aprovado com ressalvas") not null,
+    status_pagamento enum("Pendente","Pago") not null,
     observacoes text,
     idAgendamento int not null,
     idFuncionario int not null,
@@ -107,3 +108,34 @@ select * from veiculo;
 select * from agendamento;
 
 SELECT COUNT(*) FROM agendamento WHERE status_agendamento = 'Agendado';
+
+
+
+
+-- 1. Inserir um novo cliente na tabela 'cliente'
+-- idCliente será gerado automaticamente.
+INSERT INTO cliente (nome, cpf, telefone, email, senha)
+VALUES ('Maria Silva', '123.456.789-01', '(11) 98765-4321', 'maria.silva@email.com', 'senha_segura123');
+
+-- 2. Inserir um novo veículo na tabela 'veiculo'
+-- A placa e o chassi devem ser únicos.
+-- Usamos o 'idCliente' inserido acima.
+INSERT INTO veiculo (placa, tipo_veiculo, nome_veiculo, modelo, ano_veiculo, chassi, observacoes, idCliente)
+VALUES ('ABC-1234', 'Carro', 'Ford Fusion', 'Titanium', 2018, 'ABC12345DEF678901', 'Pequenos arranhões na porta do motorista.', 1);
+
+-- 3. Inserir três novos agendamentos na tabela 'agendamento'
+-- Todos os agendamentos se referem ao cliente e veículo inseridos nas etapas anteriores.
+-- Os status são definidos como 'Agendado', 'Fechado' e 'Pendente' para demonstrar as opções.
+-- O campo idCliente e idVeiculo devem corresponder aos IDs existentes.
+
+-- Agendamento 1: status "Agendado"
+INSERT INTO agendamento (data_agendamento, status_agendamento, hora, idCliente, idVeiculo)
+VALUES ('2025-09-01', 'Pendente', '10:30:00', 1, 1);
+
+-- Agendamento 2: status "Fechado"
+INSERT INTO agendamento (data_agendamento, status_agendamento, hora, idCliente, idVeiculo)
+VALUES ('2025-08-28', 'Pendente', '14:00:00', 1, 1);
+
+-- Agendamento 3: status "Pendente"
+INSERT INTO agendamento (data_agendamento, status_agendamento, hora, idCliente, idVeiculo)
+VALUES ('2025-09-15', 'Pendente', '09:00:00', 1, 1);

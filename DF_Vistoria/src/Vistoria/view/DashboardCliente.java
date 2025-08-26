@@ -5,9 +5,12 @@ import Vistoria.controller.VeiculoController;
 import Vistoria.model.Agendamento;
 import Vistoria.model.Cliente;
 import Vistoria.model.Veiculo;
+import Vistoria.controller.VistoriaController;
+import Vistoria.model.Vistoria;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
@@ -447,38 +450,68 @@ public class DashboardCliente extends JFrame {
     private JPanel criarPainelEmitirLaudo() {
         JPanel panel = new JPanel(new BorderLayout(20, 20));
         panel.setBackground(BACKGROUND_COLOR);
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         JLabel title = new JLabel("Laudos de Vistoria");
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(Color.DARK_GRAY);
         panel.add(title, BorderLayout.NORTH);
 
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-        // Dados de exemplo, isso deve ser carregado do banco de dados na implementação final
-        listModel.addElement("Laudo 01 - 15/08/2025");
-        listModel.addElement("Laudo 02 - 10/07/2025");
-        listModel.addElement("Laudo 03 - 20/06/2025");
-
-        JList<String> laudosList = new JList<>(listModel);
-        laudosList.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        JScrollPane scrollPane = new JScrollPane(laudosList);
-
-        JButton emitirButton = new JButton("Emitir Laudo");
-        JPanel buttonPanel = new JPanel();
+        // Tabela para exibir os laudos - CÓDIGO CORRIGIDO
+        String[] colunas = {"ID Vistoria", "Data", "Resultado", "Veículo", "Placa", "Vistoriador"};
+        DefaultTableModel tableModel = new DefaultTableModel(colunas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        
+        JTable laudosTable = new JTable(tableModel);
+        laudosTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        laudosTable.setRowHeight(30);
+        laudosTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+        JScrollPane scrollPane = new JScrollPane(laudosTable);
+        
+        // Botões
+        JButton btnAtualizar = new JButton("Atualizar Lista");
+        JButton btnEmitirPDF = new JButton("Emitir PDF");
+        
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBackground(BACKGROUND_COLOR);
-        buttonPanel.add(emitirButton);
+        buttonPanel.add(btnAtualizar);
+        buttonPanel.add(btnEmitirPDF);
+        
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
 
-        emitirButton.addActionListener(e -> {
-            String selected = laudosList.getSelectedValue();
-            if (selected != null) {
-                JOptionPane.showMessageDialog(this, "Emitindo " + selected);
+        // Carregar dados inicialmente
+        carregarLaudosCliente(tableModel);
+
+        // Ação do botão atualizar
+        btnAtualizar.addActionListener(e -> {
+            carregarLaudosCliente(tableModel);
+            JOptionPane.showMessageDialog(this, "Lista de laudos atualizada!", "Atualização", 
+                JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        // Ação do botão emitir PDF (implementação básica)
+        btnEmitirPDF.addActionListener(e -> {
+            int selectedRow = laudosTable.getSelectedRow();
+            if (selectedRow != -1) {
+                int idVistoria = (Integer) tableModel.getValueAt(selectedRow, 0);
+                JOptionPane.showMessageDialog(this, 
+                    "Emitindo PDF do laudo ID: " + idVistoria, 
+                    "Emissão de Laudo", 
+                    JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, "Selecione um laudo.", "Erro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, 
+                    "Selecione um laudo para emitir o PDF.", 
+                    "Aviso", 
+                    JOptionPane.WARNING_MESSAGE);
             }
         });
 
-        panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
         return panel;
     }
 
@@ -503,6 +536,36 @@ public class DashboardCliente extends JFrame {
                 veiculoAgendarComboBox.addItem(item);
                 veiculoMap.put(item, v); // Mapeia a string exibida para o objeto Veiculo
             }
+        }
+    }
+    
+    /**
+     * atualiza a lista de emitir laudos
+     */
+    
+    private void carregarLaudosCliente(DefaultTableModel tableModel) {
+        tableModel.setRowCount(0); // Limpa a tabela
+        
+        // Usa o controller para obter as vistorias do cliente
+        VistoriaController vistoriaController = new VistoriaController();
+        List<Vistoria> vistorias = vistoriaController.getVistoriasPorCliente(clienteLogado);
+        
+        for (Vistoria vistoria : vistorias) {
+            tableModel.addRow(new Object[]{
+                vistoria.getIdVistoria(),
+                vistoria.getData_vistoria(),
+                vistoria.getResultado(),
+                vistoria.getAgendamento().getVeiculo().getNome_veiculo(),
+                vistoria.getAgendamento().getVeiculo().getPlaca(),
+                vistoria.getFuncionario().getNome()
+            });
+        }
+        
+        if (vistorias.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "Nenhum laudo encontrado para este cliente.", 
+                "Informação", 
+                JOptionPane.INFORMATION_MESSAGE);
         }
     }
     

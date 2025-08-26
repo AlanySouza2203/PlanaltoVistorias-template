@@ -9,6 +9,7 @@ public class Vistoria {
     private int idVistoria;
     private String data_vistoria;
     private String resultado;
+    private String status_pagamento;
     private String observacoes;
     private int idAgendamento;
     private int idFuncionario;
@@ -18,22 +19,24 @@ public class Vistoria {
     public Vistoria() {
     }
     //Construtor com ids de agendamento e funcionario
-    public Vistoria(int idVistoria, String data_vistoria, String resultado, String observacoes, int idAgendamento,
+    public Vistoria(int idVistoria, String data_vistoria, String resultado, String status_pagamento, String observacoes, int idAgendamento,
 			int idFuncionario) {
 		super();
 		this.idVistoria = idVistoria;
 		this.data_vistoria = data_vistoria;
 		this.resultado = resultado;
+		this.status_pagamento = status_pagamento;
 		this.observacoes = observacoes;
 		this.idAgendamento = idAgendamento;
 		this.idFuncionario = idFuncionario;
 	}
     
     
-    public Vistoria(int idVistoria, String data_vistoria, String resultado, String observacoes, Agendamento agendamento, Funcionario funcionario) {
+    public Vistoria(int idVistoria, String data_vistoria, String resultado, String status_pagamento, String observacoes, Agendamento agendamento, Funcionario funcionario) {
         this.idVistoria = idVistoria;
         this.data_vistoria = data_vistoria;
         this.resultado = resultado;
+        this.status_pagamento = status_pagamento;
         this.observacoes = observacoes;
         this.agendamento = agendamento;
         this.funcionario = funcionario;
@@ -62,6 +65,14 @@ public class Vistoria {
 
     public void setResultado(String resultado) {
         this.resultado = resultado;
+    }
+    
+    public String getStatus_pagamento() {
+        return status_pagamento;
+    }
+
+    public void setStatus_pagamento(String status_pagamento) {
+        this.status_pagamento = status_pagamento;
     }
 
     public String getObservacoes() {

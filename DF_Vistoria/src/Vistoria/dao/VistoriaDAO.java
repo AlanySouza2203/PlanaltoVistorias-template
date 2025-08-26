@@ -4,6 +4,7 @@ import Vistoria.model.Vistoria;
 import Vistoria.model.Cliente;
 import Vistoria.model.Veiculo;
 import Vistoria.model.Agendamento;
+import Vistoria.model.Funcionario;
 import Vistoria.DB.Conexao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,14 +20,15 @@ public class VistoriaDAO {
      * @param vistoria O objeto Vistoria a ser adicionado.
      */
 	public boolean inserirVistoria(Vistoria vistoria) {
-        String sql = "INSERT INTO vistoria (data_vistoria, resultado, observacoes, idAgendamento, idFuncionario) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO vistoria (data_vistoria, resultado, status_pagamento, observacoes, idAgendamento, idFuncionario) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, vistoria.getData_vistoria());
             stmt.setString(2, vistoria.getResultado());
-            stmt.setString(3, vistoria.getObservacoes());
-            stmt.setInt(4, vistoria.getAgendamento().getIdAgendamento());
-            stmt.setInt(5, vistoria.getFuncionario().getIdFuncionario());
+            stmt.setString(3, vistoria.getStatus_pagamento());
+            stmt.setString(4, vistoria.getObservacoes());
+            stmt.setInt(5, vistoria.getAgendamento().getIdAgendamento());
+            stmt.setInt(6, vistoria.getFuncionario().getIdFuncionario());
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -80,6 +82,58 @@ public class VistoriaDAO {
             }
         } catch (SQLException e) {
             System.err.println("Erro ao listar vistorias por funcionário: " + e.getMessage());
+        }
+        return vistorias;
+    }
+    
+    
+    public List<Vistoria> listarVistoriasPorCliente(int idCliente) {
+        List<Vistoria> vistorias = new ArrayList<>();
+        String sql = "SELECT v.idVistoria, v.data_vistoria, v.resultado, v.status_pagamento, v.observacoes, "
+                + "a.idAgendamento, a.data_agendamento, a.hora, "
+                + "ve.placa, ve.nome_veiculo, ve.modelo, "
+                + "f.nome AS nome_funcionario "
+                + "FROM vistoria v "
+                + "INNER JOIN agendamento a ON v.idAgendamento = a.idAgendamento "
+                + "INNER JOIN veiculo ve ON a.idVeiculo = ve.idVeiculo "
+                + "INNER JOIN funcionario f ON v.idFuncionario = f.idFuncionario "
+                + "WHERE a.idCliente = ?";
+
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idCliente);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Vistoria vistoria = new Vistoria();
+                vistoria.setIdVistoria(rs.getInt("idVistoria"));
+                vistoria.setData_vistoria(rs.getString("data_vistoria"));
+                vistoria.setResultado(rs.getString("resultado"));
+                vistoria.setStatus_pagamento(rs.getString("status_pagamento"));
+                vistoria.setObservacoes(rs.getString("observacoes"));
+
+                // Cria e popula objetos relacionados
+                Agendamento agendamento = new Agendamento();
+                agendamento.setIdAgendamento(rs.getInt("idAgendamento"));
+                agendamento.setData_agendamento(rs.getString("data_agendamento"));
+                agendamento.setHora(rs.getString("hora"));
+
+                Veiculo veiculo = new Veiculo();
+                veiculo.setPlaca(rs.getString("placa"));
+                veiculo.setNome_veiculo(rs.getString("nome_veiculo"));
+                veiculo.setModelo(rs.getString("modelo"));
+                agendamento.setVeiculo(veiculo);
+
+                Funcionario funcionario = new Funcionario();
+                funcionario.setNome(rs.getString("nome_funcionario"));
+                
+                vistoria.setAgendamento(agendamento);
+                vistoria.setFuncionario(funcionario);
+
+                vistorias.add(vistoria);
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar vistorias por cliente: " + e.getMessage());
         }
         return vistorias;
     }

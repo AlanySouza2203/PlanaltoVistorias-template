@@ -5,6 +5,7 @@ import Vistoria.dao.AgendamentoDAO;
 import Vistoria.model.Vistoria;
 import Vistoria.model.Agendamento;
 import Vistoria.model.Funcionario;
+import Vistoria.model.Cliente;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,12 +25,13 @@ public class VistoriaController {
      * @param resultado O resultado da vistoria.
      * @param observacoes As observações da vistoria.
      */
-    public void realizarVistoria(Agendamento agendamento, Funcionario funcionario, String resultado, String observacoes) throws Exception {
+    public void realizarVistoria(Agendamento agendamento, Funcionario funcionario, String resultado, String status_pagamento, String observacoes) throws Exception {
         try {
             // Cria o objeto Vistoria
             Vistoria novaVistoria = new Vistoria();
             novaVistoria.setData_vistoria(LocalDate.now().toString());
             novaVistoria.setResultado(resultado);
+            novaVistoria.setStatus_pagamento(status_pagamento);
             novaVistoria.setObservacoes(observacoes);
             novaVistoria.setAgendamento(agendamento);
             novaVistoria.setFuncionario(funcionario);
@@ -57,5 +59,9 @@ public class VistoriaController {
      */
     public List<Vistoria> getRelatorioVistorias(Funcionario funcionario) {
         return vistoriaDAO.listarVistoriasPorFuncionario(funcionario.getIdFuncionario());
+    }
+    
+    public List<Vistoria> getVistoriasPorCliente(Cliente cliente) {
+        return vistoriaDAO.listarVistoriasPorCliente(cliente.getIdCliente());
     }
 }

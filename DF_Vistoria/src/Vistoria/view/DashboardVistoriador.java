@@ -47,6 +47,7 @@ public class DashboardVistoriador extends JFrame {
     // Atributos para a nova tela de realizar vistoria
     private Agendamento agendamentoSelecionado; // Para passar o objeto entre telas
     private JComboBox<String> resultadoComboBox;
+    private JTextArea statusPagamento;
     private JTextArea observacoesTextArea;
     private JLabel clienteLabel;
     private JLabel veiculoLabel;
@@ -398,6 +399,10 @@ public class DashboardVistoriador extends JFrame {
         JScrollPane scrollPane = new JScrollPane(observacoesTextArea);
         gbc.gridx = 1; gbc.gridy = 6; gbc.gridwidth = 1; gbc.weighty = 1.0; gbc.fill = GridBagConstraints.BOTH;
         formPanel.add(scrollPane, gbc);
+        
+        // CORREÇÃO: Inicializa a variável statusPagamento
+        statusPagamento = new JTextArea();
+        statusPagamento.setText("Pendente");
 
         // Botão de Submeter
         JButton btnSalvarVistoria = new JButton("Salvar Vistoria");
@@ -413,6 +418,7 @@ public class DashboardVistoriador extends JFrame {
         btnSalvarVistoria.addActionListener(e -> {
             String resultado = (String) resultadoComboBox.getSelectedItem();
             String observacoes = observacoesTextArea.getText();
+            String status_pagamento = (String) statusPagamento.getText();
 
             // Lógica para salvar a vistoria no banco de dados
             try {
@@ -420,6 +426,7 @@ public class DashboardVistoriador extends JFrame {
                     agendamentoSelecionado,
                     funcionarioLogado,
                     resultado,
+                    status_pagamento,
                     observacoes
                 );
                 JOptionPane.showMessageDialog(this, "Vistoria registrada com sucesso e agendamento concluído!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
