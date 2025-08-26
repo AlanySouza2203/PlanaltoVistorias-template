@@ -14,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
-import java.time.LocalDate;
 
 /**
  * A classe DashboardVistoriador representa a interface principal do funcionário Vistoriador no sistema de vistoria.
@@ -77,7 +76,7 @@ public class DashboardVistoriador extends JFrame {
 
     	//Configurações básicas da janela
     	setTitle("Dashboard do Vistoriador");
-        setSize(1100, 750);
+        setSize(1300, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -175,7 +174,7 @@ public class DashboardVistoriador extends JFrame {
         JPanel cardsPanel = new JPanel(new GridLayout(1, 3, 30, 0));
         cardsPanel.setBackground(BACKGROUND_COLOR);
 
-        JPanel cardAgendamento1 = criarCardInfo("Agendado");
+        JPanel cardAgendamento1 = criarCardInfo("Pendente");
         agendamentosValueLabel = (JLabel) ((BorderLayout) cardAgendamento1.getLayout()).getLayoutComponent(BorderLayout.CENTER);
 
         JPanel cardAgendamento2 = criarCardInfo("Concluídos");
@@ -212,7 +211,7 @@ public class DashboardVistoriador extends JFrame {
         JLabel titleLabel = new JLabel(titulo);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
 
-        if (titulo.contains("Agendado")) {
+        if (titulo.contains("Pendente")) {
             titleLabel.setForeground(CARD_TITLE_ORANGE);
         } else if (titulo.contains("Concluídos")) {
             titleLabel.setForeground(CARD_TITLE_GREEN);
@@ -266,7 +265,7 @@ public class DashboardVistoriador extends JFrame {
         JPanel panel = new JPanel(new BorderLayout(20, 20));
         panel.setBackground(BACKGROUND_COLOR);
 
-        JLabel title = new JLabel("Agendamentos marcados como: Agendado");
+        JLabel title = new JLabel("Agendamentos marcados como: Pendente");
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(Color.DARK_GRAY);
         title.setBorder(new EmptyBorder(0, 0, 20, 0));

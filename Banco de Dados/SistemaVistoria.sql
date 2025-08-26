@@ -13,7 +13,7 @@ create table cliente (
     email varchar(100) not null unique,
     senha varchar(100) not null
 );
-
+	
 -- =========================
 -- FUNCIONARIO
 -- =========================
@@ -48,7 +48,7 @@ create table veiculo (
 create table agendamento (
     idAgendamento int primary key auto_increment,
     data_agendamento date not null,
-    status_agendamento enum("Aberto","Fechado") not null,
+    status_agendamento enum("Agendado","Fechado","Pendente") not null,
     hora time not null,
     idCliente int not null,
     idVeiculo int not null,
@@ -100,8 +100,10 @@ INSERT INTO funcionario (nome, email, matricula, senha, cargo)
 VALUES ('Testador Gerente', 'teste.gerente@empresa.com', 'GER-001', 'senha456', 'Gerente');
 
 -- ==============================
--- VErificando os armazenamentos
+-- Verificando os armazenamentos
 -- ==============================
 select * from cliente;
 select * from veiculo;
 select * from agendamento;
+
+SELECT COUNT(*) FROM agendamento WHERE status_agendamento = 'Agendado';

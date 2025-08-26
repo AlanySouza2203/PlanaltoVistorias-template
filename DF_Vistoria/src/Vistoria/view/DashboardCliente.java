@@ -63,7 +63,7 @@ public class DashboardCliente extends JFrame {
 
         // --- Configurações básicas da janela ---
         setTitle("Dashboard do Cliente");
-        setSize(1100, 750);
+        setSize(1300, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());

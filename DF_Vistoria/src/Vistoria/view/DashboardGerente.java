@@ -28,7 +28,7 @@ public class DashboardGerente extends JFrame {
         this.funcionarioController = new FuncionarioController();
 
         setTitle("Dashboard do Gerente - " + funcionarioLogado.getNome());
-        setSize(1000, 700);
+        setSize(1300, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());

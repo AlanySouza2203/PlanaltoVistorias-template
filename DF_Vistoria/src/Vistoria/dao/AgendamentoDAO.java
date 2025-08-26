@@ -182,7 +182,7 @@ public class AgendamentoDAO {
      * Conta a quantidade de agendamentos por status.
      */
     public int contarAgendamentosAgendado() {
-        String sql = "SELECT COUNT(*) FROM agendamento WHERE status_agendamento = 'Agendado'";
+        String sql = "SELECT COUNT(*) FROM agendamento WHERE status_agendamento = 'Pendente'";
         
         int count = 0;
         
@@ -264,7 +264,7 @@ public class AgendamentoDAO {
                      "FROM agendamento a " +
                      "JOIN cliente c ON a.idCliente = c.idCliente " +
                      "JOIN veiculo v ON a.idVeiculo = v.idVeiculo " +
-                     "WHERE a.status_agendamento = 'Agendado'";
+                     "WHERE a.status_agendamento = 'Pendente'";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
