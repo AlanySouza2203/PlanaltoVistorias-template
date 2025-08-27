@@ -118,24 +118,24 @@ DF_Vistoria/
 ---
 
 ## 👨‍💻 Desenvolvedores 
-- [Cauê](https://github.com/Caueoliveira-064) 
+- [Cauê Oliveira](https://github.com/Caueoliveira-064) 
 - [César Augusto](https://github.com/Cesar0208)
 - [Erik Eike](https://github.com/ErikEikeSilva)
 - [Fernando Grimello](https://github.com/fernandogrimello)
 - [Gabriel Toledo](https://github.com/toledoz)
 - [Glauber Maximo](https://github.com/GlauberMaximo)
-- [Guilherme](https://github.com/guizera0701)
+- [Guilherme Alves](https://github.com/guizera0701)
 - [João Victor Lino](https://github.com/joao2740)
-- [João](https://github.com/joaomvgh)
-- [Julio](https://github.com/Julio5630)
-- [Kauã](https://github.com/Knunesth)
-- [Luciana Ribeiro](https://github.com/Luciana-Anascimento)
+- [João Veiga](https://github.com/joaomvgh)
+- [Julio Cesar](https://github.com/Julio5630)
+- [Kauã ](https://github.com/Knunesth)
+- [Luciana Nascimento](https://github.com/Luciana-Anascimento)
 - [Luis Eduardo](https://github.com/xnigthking)
 - [Luiz Felipe](https://github.com/luizfelipe90)
 - [Marcos](https://github.com/ml2000322)
 - [Pedro Matos](https://github.com/PMDL-0310)
-- [Ryan](https://github.com/Ryan25023110)
-- [Tiago](https://github.com/Massacral)
+- [Ryan Gabriel](https://github.com/Ryan25023110)
+- [Tiago Martins](https://github.com/Massacral)
 - [William dos Santos Rodrigues](https://github.com/William-Willam)
 
 ## 👨‍🏫 Professor  
