@@ -45,6 +45,8 @@ public class DashboardGerente extends JFrame {
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, titleLabel.getPreferredSize().height));
         sidebarPanel.add(titleLabel);
         sidebarPanel.add(Box.createRigidArea(new Dimension(0, 40)));
 
@@ -373,7 +375,8 @@ public class DashboardGerente extends JFrame {
 
     private JButton criarBotaoLateral(String texto) {
         JButton button = new JButton(texto);
-        button.setAlignmentX(Component.LEFT_ALIGNMENT);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         button.setBackground(new Color(33, 150, 243));
         button.setForeground(Color.WHITE);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));

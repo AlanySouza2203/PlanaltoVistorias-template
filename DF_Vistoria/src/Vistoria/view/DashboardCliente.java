@@ -115,6 +115,8 @@ public class DashboardCliente extends JFrame {
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         sidebarPanel.add(titleLabel);
         sidebarPanel.add(Box.createRigidArea(new Dimension(0, 50)));
 
@@ -273,6 +275,8 @@ public class DashboardCliente extends JFrame {
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setMaximumSize(new Dimension(220, 45));
         button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         button.setIconTextGap(12);
         button.setBorder(new EmptyBorder(12, 20, 12, 20));
 
