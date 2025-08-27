@@ -7,6 +7,8 @@ import Vistoria.model.Cliente;
 import Vistoria.model.Veiculo;
 import Vistoria.controller.VistoriaController;
 import Vistoria.model.Vistoria;
+import Vistoria.dao.PagamentoDAO;
+import Vistoria.model.PagamentoController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -457,8 +459,8 @@ public class DashboardCliente extends JFrame {
         title.setForeground(Color.DARK_GRAY);
         panel.add(title, BorderLayout.NORTH);
 
-        // Tabela para exibir os laudos - CÓDIGO CORRIGIDO
-        String[] colunas = {"ID Vistoria", "Data", "Resultado", "Veículo", "Placa", "Vistoriador"};
+        // Tabela para exibir os laudos - ADICIONANDO COLUNA DE STATUS_PAGAMENTO
+        String[] colunas = {"ID Vistoria", "Data", "Resultado", "Veículo", "Placa", "Vistoriador", "Status Pagamento"};
         DefaultTableModel tableModel = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -476,11 +478,13 @@ public class DashboardCliente extends JFrame {
         // Botões
         JButton btnAtualizar = new JButton("Atualizar Lista");
         JButton btnEmitirPDF = new JButton("Emitir PDF");
+        JButton btnRealizarPagamento = new JButton("Realizar Pagamento");
         
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBackground(BACKGROUND_COLOR);
         buttonPanel.add(btnAtualizar);
         buttonPanel.add(btnEmitirPDF);
+        buttonPanel.add(btnRealizarPagamento);
         
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(buttonPanel, BorderLayout.SOUTH);
@@ -495,18 +499,49 @@ public class DashboardCliente extends JFrame {
                 JOptionPane.INFORMATION_MESSAGE);
         });
 
-        // Ação do botão emitir PDF (implementação básica)
+        // Ação do botão emitir PDF - SOMENTE SE STATUS FOR "Pago"
         btnEmitirPDF.addActionListener(e -> {
             int selectedRow = laudosTable.getSelectedRow();
             if (selectedRow != -1) {
-                int idVistoria = (Integer) tableModel.getValueAt(selectedRow, 0);
-                JOptionPane.showMessageDialog(this, 
-                    "Emitindo PDF do laudo ID: " + idVistoria, 
-                    "Emissão de Laudo", 
-                    JOptionPane.INFORMATION_MESSAGE);
+                String statusPagamento = (String) tableModel.getValueAt(selectedRow, 6);
+                if ("Pago".equals(statusPagamento)) {
+                    int idVistoria = (Integer) tableModel.getValueAt(selectedRow, 0);
+                    JOptionPane.showMessageDialog(this, 
+                        "Emitindo PDF do laudo ID: " + idVistoria, 
+                        "Emissão de Laudo", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, 
+                        "Não é possível emitir o PDF. O pagamento está pendente.", 
+                        "Aviso", 
+                        JOptionPane.WARNING_MESSAGE);
+                }
             } else {
                 JOptionPane.showMessageDialog(this, 
                     "Selecione um laudo para emitir o PDF.", 
+                    "Aviso", 
+                    JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        // Ação do botão realizar pagamento
+        btnRealizarPagamento.addActionListener(e -> {
+            int selectedRow = laudosTable.getSelectedRow();
+            if (selectedRow != -1) {
+                int idVistoria = (Integer) tableModel.getValueAt(selectedRow, 0);
+                String statusPagamento = (String) tableModel.getValueAt(selectedRow, 6);
+                
+                if ("Pendente".equals(statusPagamento)) {
+                    abrirFormularioPagamento(idVistoria, tableModel, selectedRow);
+                } else {
+                    JOptionPane.showMessageDialog(this, 
+                        "Este laudo já foi pago.", 
+                        "Informação", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Selecione um laudo para realizar o pagamento.", 
                     "Aviso", 
                     JOptionPane.WARNING_MESSAGE);
             }
@@ -521,6 +556,8 @@ public class DashboardCliente extends JFrame {
      * Carrega os veículos do banco de dados para o cliente logado e popula o JComboBox.
      * Também limpa e preenche o mapeamento de placas para veículos.
      */
+    
+    
     private void carregarVeiculosComboBox() {
         veiculoAgendarComboBox.removeAllItems();
         veiculoMap.clear();
@@ -557,7 +594,8 @@ public class DashboardCliente extends JFrame {
                 vistoria.getResultado(),
                 vistoria.getAgendamento().getVeiculo().getNome_veiculo(),
                 vistoria.getAgendamento().getVeiculo().getPlaca(),
-                vistoria.getFuncionario().getNome()
+                vistoria.getFuncionario().getNome(),
+                vistoria.getStatus_pagamento() // NOVO CAMPO ADICIONADO
             });
         }
         
@@ -589,7 +627,101 @@ public class DashboardCliente extends JFrame {
             veiculosValueLabel.setText(String.valueOf(numVeiculos));
         }
     }
+    
+    private void abrirFormularioPagamento(int idVistoria, DefaultTableModel tableModel, int selectedRow) {
+        JDialog dialog = new JDialog(this, "Realizar Pagamento", true);
+        dialog.setSize(400, 300);
+        dialog.setLayout(new GridLayout(0, 2, 10, 10));
+        dialog.setLocationRelativeTo(this);
 
+        JComboBox<String> formaPagamento = new JComboBox<>(new String[]{"Débito", "Crédito", "Pix", "Boleto", "Dinheiro"});
+        JTextField valorField = new JTextField();
+        JTextField dataField = new JTextField(java.time.LocalDate.now().toString());
+
+        dialog.add(new JLabel("Forma de Pagamento:"));
+        dialog.add(formaPagamento);
+        dialog.add(new JLabel("Valor:"));
+        dialog.add(valorField);
+        dialog.add(new JLabel("Data:"));
+        dialog.add(dataField);
+
+        JButton confirmarBtn = new JButton("Confirmar Pagamento");
+        JButton cancelarBtn = new JButton("Cancelar");
+
+        dialog.add(confirmarBtn);
+        dialog.add(cancelarBtn);
+
+        confirmarBtn.addActionListener(e -> {
+            try {
+                String forma = (String) formaPagamento.getSelectedItem();
+                double valor = Double.parseDouble(valorField.getText());
+                String data = dataField.getText();
+
+                // Aqui você precisará criar um PagamentoController e PagamentoDAO
+                boolean sucesso = realizarPagamento(idVistoria, forma, valor, data);
+                
+                if (sucesso) {
+                    JOptionPane.showMessageDialog(dialog, "Pagamento realizado com sucesso!");
+                    tableModel.setValueAt("Pago", selectedRow, 6); // Atualiza a tabela
+                    dialog.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "Erro ao realizar pagamento.", "Erro", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Valor inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        cancelarBtn.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
+    }
+
+ // --- Métodos de Lógica de Negócio ---
+
+    /**
+     * Realiza o pagamento de uma vistoria
+     */
+    private boolean realizarPagamento(int idVistoria, String formaPagamento, double valor, String data) {
+        try {
+            // 1. Primeiro, precisamos obter o idAgendamento da vistoria
+            VistoriaDAO vistoriaDAO = new VistoriaDAO();
+            Vistoria vistoria = vistoriaDAO.buscarVistoriaPorId(idVistoria);
+            
+            if (vistoria == null) {
+                JOptionPane.showMessageDialog(this, "Vistoria não encontrada.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            
+            // 2. Inserir o pagamento no banco de dados
+            PagamentoDAO pagamentoDAO = new PagamentoDAO();
+            boolean pagamentoInserido = pagamentoDAO.inserirPagamento(
+                vistoria.getIdAgendamento(), formaPagamento, valor, data
+            );
+            
+            if (pagamentoInserido) {
+                // 3. Atualizar o status de pagamento da vistoria
+                boolean statusAtualizado = vistoriaDAO.atualizarStatusPagamento(idVistoria, "Pago");
+                
+                if (statusAtualizado) {
+                    JOptionPane.showMessageDialog(this, "Pagamento realizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                    return true;
+                } else {
+                    JOptionPane.showMessageDialog(this, "Pagamento registrado, mas erro ao atualizar status.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    return false;
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro ao registrar pagamento.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro ao processar pagamento: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+    
     // --- Métodos de Utilidade (Helpers) ---
 
     /**

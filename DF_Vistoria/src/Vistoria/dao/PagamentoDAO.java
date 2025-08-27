@@ -60,7 +60,29 @@ public class PagamentoDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        
+        
 
         return lista;
+    }
+    public boolean inserirPagamento(int idVistoria, String formaPagamento, double valor, String data) {
+        String sql = "INSERT INTO pagamento (forma_pagamento, valor, data_pagamento, idAgendamento) " +
+                    "SELECT ?, ?, ?, a.idAgendamento FROM vistoria v " +
+                    "INNER JOIN agendamento a ON v.idAgendamento = a.idAgendamento " +
+                    "WHERE v.idVistoria = ?";
+        
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, formaPagamento);
+            stmt.setDouble(2, valor);
+            stmt.setString(3, data);
+            stmt.setInt(4, idVistoria);
+            
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Erro ao inserir pagamento: " + e.getMessage());
+            return false;
+        }
     }
 }

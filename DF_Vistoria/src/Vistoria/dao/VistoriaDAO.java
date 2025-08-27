@@ -248,4 +248,21 @@ public class VistoriaDAO {
             System.err.println("Erro ao deletar vistoria: " + e.getMessage());
         }
     }
+    
+    // atualizar o status do pagamento para a DashboardCliente
+    public boolean atualizarStatusPagamento(int idVistoria, String status) {
+        String sql = "UPDATE vistoria SET status_pagamento = ? WHERE idVistoria = ?";
+        
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, status);
+            stmt.setInt(2, idVistoria);
+            
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar status de pagamento: " + e.getMessage());
+            return false;
+        }
+    }
 }
