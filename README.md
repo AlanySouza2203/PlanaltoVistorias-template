@@ -123,4 +123,3 @@ DF_Vistoria/
 ## 👨‍🏫 Professor  
 - *(Adicionar nome do professor orientador)*  
 
-# ![DF Vistorias](footer_df_vistorias.gif)
