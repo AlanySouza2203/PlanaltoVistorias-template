@@ -1,6 +1,8 @@
 package Vistoria.dao;
 
 import Vistoria.model.Agendamento;
+import Vistoria.model.Cliente;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import Vistoria.DB.Conexao;
 import Vistoria.model.Funcionario;
+import Vistoria.model.Veiculo;
 
 public class FuncionarioDAO {
 
@@ -42,7 +45,13 @@ public class FuncionarioDAO {
 
     public List<Agendamento> listarAgendamentosPorStatus(String status) {
         List<Agendamento> listaAgendamentos = new ArrayList<>();
-        String sql = "SELECT * FROM agendamento WHERE status_agendamento = ?";
+        String sql = "SELECT a.idAgendamento, a.data_agendamento, a.hora, a.status_agendamento, " +
+                "c.idCliente, c.nome AS nomeCliente, " +
+                "v.idVeiculo, v.nome_veiculo AS nomeVeiculo " +
+                "FROM agendamento a " +
+                "JOIN cliente c ON a.idCliente = c.idCliente " +
+                "JOIN veiculo v ON a.idVeiculo = v.idVeiculo " +
+                "WHERE a.status_agendamento = ?";
 
         try (Connection conn = Conexao.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -58,6 +67,15 @@ public class FuncionarioDAO {
                     agendamento.setHora(rs.getString("hora"));
                     agendamento.setIdCliente(rs.getInt("idCliente"));
                     agendamento.setIdVeiculo(rs.getInt("idVeiculo"));
+                    
+                    Cliente cliente = new Cliente();
+                    cliente.setNome(rs.getString("nomeCliente"));
+
+                    Veiculo veiculo = new Veiculo();
+                    veiculo.setNome_veiculo(rs.getString("nomeVeiculo"));
+                    
+                    agendamento.setCliente(cliente);
+                    agendamento.setVeiculo(veiculo);
 
                     listaAgendamentos.add(agendamento);
                 }
