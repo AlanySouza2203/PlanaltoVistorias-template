@@ -44,7 +44,7 @@ public class VistoriaDAO {
      */
     public List<Vistoria> listarVistoriasPorFuncionario(int idFuncionario) {
         List<Vistoria> vistorias = new ArrayList<>();
-        String sql = "SELECT v.idVistoria, v.data_vistoria, v.resultado, v.observacoes, "
+        String sql = "SELECT v.idVistoria, v.data_vistoria, v.resultado, v.status_pagamento, v.observacoes, "
                 + "c.nome AS nome_cliente, c.cpf, c.email, c.telefone, "
                 + "ve.nome_veiculo, ve.placa "
                 + "FROM vistoria v "
@@ -63,6 +63,7 @@ public class VistoriaDAO {
                 vistoria.setIdVistoria(rs.getInt("idVistoria"));
                 vistoria.setData_vistoria(rs.getString("data_vistoria"));
                 vistoria.setResultado(rs.getString("resultado"));
+                vistoria.setStatus_pagamento(rs.getString("status_pagamento"));
                 vistoria.setObservacoes(rs.getString("observacoes"));
 
                 // Cria e popula os objetos aninhados para o relatório

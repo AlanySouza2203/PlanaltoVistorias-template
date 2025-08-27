@@ -476,7 +476,7 @@ public class DashboardVistoriador extends JFrame {
         title.setBorder(new EmptyBorder(0, 0, 20, 0));
         panel.add(title, BorderLayout.NORTH);
 
-        String[] colunas = {"ID Vistoria", "Data", "Resultado", "Cliente", "Placa do Veículo"};
+        String[] colunas = {"ID Vistoria", "Data", "Resultado", "Pagamento", "Cliente", "Placa do Veículo"};
         relatorioTableModel = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -507,6 +507,7 @@ public class DashboardVistoriador extends JFrame {
                 vistoria.getIdVistoria(),
                 vistoria.getData_vistoria(),
                 vistoria.getResultado(),
+                vistoria.getStatus_pagamento(),
                 vistoria.getAgendamento().getCliente().getNome(),
                 vistoria.getAgendamento().getVeiculo().getPlaca()
             });

@@ -7,6 +7,7 @@ import Vistoria.model.Cliente;
 import Vistoria.model.Veiculo;
 import Vistoria.controller.VistoriaController;
 import Vistoria.model.Vistoria;
+import Vistoria.dao.VistoriaDAO;
 import Vistoria.dao.PagamentoDAO;
 import Vistoria.dao.VistoriaDAO;
 import Vistoria.model.PagamentoController;
