@@ -125,7 +125,7 @@ DF_Vistoria/
 - [Gabriel Toledo](https://github.com/toledoz)
 - [Glauber Maximo](https://github.com/GlauberMaximo)
 - [Guilherme Alves](https://github.com/guizera0701)
-- [João Victor Lino](https://github.com/joao2740)
+- [João Vitor Lino](https://github.com/joao2740)
 - [João Veiga](https://github.com/joaomvgh)
 - [Julio Cesar](https://github.com/Julio5630)
 - [Kauã ](https://github.com/Knunesth)
