@@ -1,6 +1,6 @@
 # ![DF Vistorias](header_df_vistorias.gif)
 
-![Java](https://img.shields.io/badge/Java-17-orange?logo=java&logoColor=white)  
+![Java](https://img.shields.io/badge/Java-21-orange?logo=java&logoColor=white)  
 ![MySQL](https://img.shields.io/badge/MySQL-Database-blue?logo=mysql&logoColor=white)  
 ![Eclipse IDE](https://img.shields.io/badge/Eclipse-IDE-purple?logo=eclipseide&logoColor=white)  
 ![Git](https://img.shields.io/badge/Git-Version%20Control-red?logo=git&logoColor=white)  
@@ -122,3 +122,5 @@ DF_Vistoria/
 
 ## 👨‍🏫 Professor  
 - *(Adicionar nome do professor orientador)*  
+
+# ![DF Vistorias](footer_df_vistorias.gif)
