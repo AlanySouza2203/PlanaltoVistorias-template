@@ -1,4 +1,4 @@
-# ![DF Vistorias](header_df_vistorias.gif)
+# ![DF Vistorias](imagens/logo.gif.)
 
 ![Java](https://img.shields.io/badge/Java-21-orange?logo=java&logoColor=white)  
 ![MySQL](https://img.shields.io/badge/MySQL-Database-blue?logo=mysql&logoColor=white)  
@@ -123,3 +123,4 @@ DF_Vistoria/
 ## 👨‍🏫 Professor  
 - *(Adicionar nome do professor orientador)*  
 
+# ![DF Vistorias](imagens/parte_do_projeto.gif)
