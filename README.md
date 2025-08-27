@@ -42,7 +42,7 @@ O sistema foi dividido em módulos principais, garantindo organização, escalab
 
 ## 🛠️ Tecnologias Utilizadas  
 
-- **Linguagem**: Java (JDK 17)  
+- **Linguagem**: Java (JDK 21)  
 - **Banco de Dados**: MySQL  
 - **IDE**: Eclipse  
 - **Controle de Versão**: Git & GitHub  
