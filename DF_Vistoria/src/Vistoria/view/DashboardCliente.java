@@ -584,6 +584,7 @@ public class DashboardCliente extends JFrame {
     
     /**
      * atualiza a lista de emitir laudos
+     * 
      */
     
     private void carregarLaudosCliente(DefaultTableModel tableModel) {
