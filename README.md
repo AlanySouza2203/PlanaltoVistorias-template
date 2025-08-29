@@ -128,7 +128,7 @@ DF_Vistoria/
 - [João Vitor Lino](https://github.com/joao2740)
 - [João Veiga](https://github.com/joaomvgh)
 - [Julio Cesar](https://github.com/Julio5630)
-- [Kauã ](https://github.com/Knunesth)
+- [Kauã Thierry ](https://github.com/Knunesth)
 - [Luciana Nascimento](https://github.com/Luciana-Anascimento)
 - [Luis Eduardo](https://github.com/xnigthking)
 - [Luiz Felipe](https://github.com/luizfelipe90)
